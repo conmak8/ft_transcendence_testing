@@ -10,7 +10,7 @@ services:
     networks:
       - trans_network
     environment:
-      - VITE_BACKEND_URL=${BACKEND_URL}:${NGINX_PORT}
+      - VITE_BACKEND_URL=${BACKEND_URL}:${BACKEND_PUBLIC_PORT}
       - VITE_ALLOWED_HOSTS=${VITE_ALLOWED_HOSTS:-localhost}
     restart: unless-stopped
 
