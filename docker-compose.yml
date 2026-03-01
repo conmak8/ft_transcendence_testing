@@ -11,6 +11,7 @@ services:
       - trans_network
     environment:
       - VITE_BACKEND_URL=${BACKEND_URL}:${NGINX_PORT}
+      - VITE_ALLOWED_HOSTS=${VITE_ALLOWED_HOSTS:-localhost}
     restart: unless-stopped
 
   backend:
