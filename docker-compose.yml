@@ -43,7 +43,7 @@ services:
       - POSTGRES_PORT=${POSTGRES_PORT:-5432}
 
       # This is the URL backend returns for static files
-      - BACKEND_URL=${BACKEND_URL}:${NGINX_PORT}
+      - BACKEND_URL=${BACKEND_URL}:${BACKEND_PUBLIC_PORT}
 
       # So that the backend knows which IP to allow connecting to it
       - FRONTEND_ORIGIN=${FRONTEND_ORIGIN}
