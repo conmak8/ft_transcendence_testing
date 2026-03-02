@@ -12,6 +12,17 @@
     feedback = status.feedback;
     feedbackType = status.feedbackType;
   }
+
+  $effect(() => { // wenn feedback oder isSaving sich aendert, wird funktion aufgerufen, um feedback nach 3 sekunden zu verstecken
+    if (!feedback || isSaving) return;
+
+    const timeoutId = setTimeout(() => {
+      feedback = '';
+      feedbackType = '';
+    }, 3000);
+
+    return () => clearTimeout(timeoutId);
+  });
 </script>
 
 
