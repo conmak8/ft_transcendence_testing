@@ -4,7 +4,13 @@
         type?: 'button' | 'submit' | 'reset';
         disabled?: boolean;
         form?: string;
-        variant?: 'default' | 'save' | 'reset' | 'expand-trigger';
+        variant?:
+            | 'default'
+            | 'save'
+            | 'reset'
+            | 'expand-trigger-left'
+            | 'expand-trigger-right'
+            | 'expand-trigger-bottom';
         onclick?: (event: MouseEvent) => void;
         ariaExpanded?: boolean;
         ariaLabel?: string;
@@ -32,7 +38,9 @@
     aria-label={ariaLabel}
     class:save={variant === 'save'}
     class:reset={variant === 'reset'}
-    class:expand-trigger={variant === 'expand-trigger'}
+    class:expand-trigger-left={variant === 'expand-trigger-left'}
+    class:expand-trigger-right={variant === 'expand-trigger-right'}
+    class:expand-trigger-bottom={variant === 'expand-trigger-bottom'}
 >
     {@render children()}
 </button>
@@ -84,7 +92,7 @@
         color: #ffd5d5;
     }
 
-    button.expand-trigger
+    button.expand-trigger-left
     {
         position: absolute;
         left: 8px;
@@ -94,5 +102,28 @@
         letter-spacing: 1px;
         writing-mode: vertical-rl;
         transform: rotate(180deg);
+    }
+
+    button.expand-trigger-right
+    {
+        position: absolute;
+        right: 8px;
+        width: 40px;
+        height: 100%;
+        padding: 0;
+        letter-spacing: 1px;
+        writing-mode: vertical-rl;
+    }
+
+    button.expand-trigger-bottom
+    {
+        position: absolute;
+        left: 8px;
+        right: 8px;
+        bottom: 8px;
+        width: auto;
+        height: 40px;
+        padding: 0;
+        letter-spacing: 1px;
     }
 </style>

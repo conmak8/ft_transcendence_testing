@@ -1,7 +1,7 @@
 <script lang="ts">
     import Button from './Button.svelte';
 
-    let isExpanded = $state(true);
+    let isExpanded = $state(false);
 
     function togglePanel()
     {
@@ -9,48 +9,44 @@
     }
 </script>
 
-<aside class="friends-drawer" class:expanded={isExpanded}>
+<aside class="rooms-drawer" class:expanded={isExpanded}>
     <Button
         type="button"
-        variant="expand-trigger-left"
+        variant="expand-trigger-right"
         onclick={togglePanel}
         ariaExpanded={isExpanded}
-        ariaLabel={isExpanded ? 'Close friends panel' : 'Open friends panel'}
+        ariaLabel={isExpanded ? 'Close rooms panel' : 'Open rooms panel'}
     >
-        FRIENDS
+        ROOMS
     </Button>
 
     {#if isExpanded}
-        <form class="friends-panel">
-            <h2>Friends</h2>
+        <form class="rooms-panel">
+            <h2>Rooms</h2>
         </form>
     {/if}
-</aside> 
-<!-- aside ist container fuer ergaenzende inhalte -->
+</aside>
 
 <style>
-    .friends-drawer
+    .rooms-drawer
     {
         position: fixed;
-        left: 0;
+        right: 0;
         top: 100px;
-        bottom: 60px; /* 40 weniger als top, weil header 40px groeser ist als footer*/
+        bottom: 60px;
         width: 50px;
-        overflow: hidden; 
-        /* schneidet alles raus was aus drawer rausstehen wuerde */
+        overflow: hidden;
         transition: width 0.3s ease;
     }
 
-    .friends-drawer.expanded
+    .rooms-drawer.expanded
     {
         width: max(320px, 33.333vw);
-        /* 1/3 vom bildschirm (33%) und mingroese von 320px fuer kleine bildschirme */
     }
 
-
-    .friends-panel
+    .rooms-panel
     {
-        margin-left: 55px;
+        margin-right: 55px;
         height: 100%;
         box-sizing: border-box;
         border: 1px solid rgba(10, 235, 0, 0.1);
@@ -59,7 +55,7 @@
         padding: 36px;
     }
 
-    .friends-panel:hover
+    .rooms-panel:hover
     {
         border-color: #0AEB00;
         background: rgba(10, 235, 0, 0.02);
