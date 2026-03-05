@@ -1,74 +1,69 @@
 <script lang="ts">
     import ToggleSetting from './Toggle.svelte';
     import InputField from './Input.svelte';
+    import Button from './Button.svelte';
     import { onMount } from 'svelte';
     import { settingsService } from '../services/settingsService';
-    import Button from '../components/Button.svelte';
-
 
     let fullName = $state('');
     let bio = $state('');
     let birthDate = $state('');
     let twoFactorEnabled = $state(false);
     let notificationsEnabled = $state(true);
-    let isSaving = $state(false);
-    let feedback = $state('');
-    let feedbackType = $state<'success' | 'error' | '' > (''); // erlaubt sind  success, error oder leer und ('') ist startwert
+
+    const { setStatus } = $props<{
+        setStatus?: (status: { isSaving: boolean; feedback: string; feedbackType: 'success' | 'error' | '' }) => void;
+    }>();
 
     let avatarUrl = $state<string | null>(null);
     let fileInput: HTMLInputElement;
     let isUploadingAvatar = $state(false);
 
-    // trick cache with a fake query parameter:
     function withAvatarVersion(url: string): string {
         const separator = url.includes('?') ? '&' : '?';
         return `${url}${separator}v=${Date.now()}`;
     }
 
-    onMount(async () => { // beim oeffnen der seite, wird funktion aufgerufen, laedt user daten
+    onMount(async () => {
         try {
             const [settings, myAvatarUrl] = await Promise.all([
                 settingsService.getUserSettings(),
                 settingsService.getMyAvatarUrl(),
-            ]); // await wartet auf server antwort
+            ]);
             fullName = settings.fullName ?? '';
             bio = settings.bio ?? '';
             birthDate = settings.birthday ?? '';
             avatarUrl = myAvatarUrl ? withAvatarVersion(myAvatarUrl) : null;
         } catch (error) {
-            feedback = error instanceof Error ? error.message : 'Could not load settings';
-            feedbackType = 'error';
+            setStatus?.({
+                isSaving: false,
+                feedback: error instanceof Error ? error.message : 'Could not load settings',
+                feedbackType: 'error',
+            });
         }
     });
 
     async function handleSubmit(event: SubmitEvent) {
-        event.preventDefault(); // verhindert, dass seite neu geladen wird
-        isSaving = true;
-        feedback = '';
-        feedbackType = '';
+        event.preventDefault();
+        setStatus?.({ isSaving: true, feedback: '', feedbackType: '' });
 
-        try
-        { // werte in settingsService updaten, trim und wenn leer dann null
+        try {
             const updated = await settingsService.updateUserSettings({
                 fullName: fullName.trim() || null,
                 bio: bio.trim() || null,
                 birthday: birthDate || null,
             });
-            // bei succes werte in form updaten
+
             fullName = updated.fullName ?? '';
             bio = updated.bio ?? '';
             birthDate = updated.birthday ?? '';
-            feedback = 'Settings saved';
-            feedbackType = 'success';
-        }
-        catch (error)
-        {
-            feedback = error instanceof Error ? error.message : 'Save failed';
-            feedbackType = 'error';
-        }
-        finally
-        {
-            isSaving = false;
+            setStatus?.({ isSaving: false, feedback: 'Settings saved', feedbackType: 'success' });
+        } catch (error) {
+            setStatus?.({
+                isSaving: false,
+                feedback: error instanceof Error ? error.message : 'Save failed',
+                feedbackType: 'error',
+            });
         }
     }
 
@@ -77,23 +72,22 @@
         if (!target.files || target.files.length === 0) return;
 
         const file = target.files[0];
-        
-        // Check file size (max 2MB)
+
         if (file.size > 2 * 1024 * 1024) {
-            feedback = 'Image must be smaller than 2MB';
-            feedbackType = 'error';
-            target.value = ''; // Reset input
+            setStatus?.({
+                isSaving: false,
+                feedback: 'Image must be smaller than 2MB',
+                feedbackType: 'error',
+            });
+            target.value = '';
             return;
         }
 
         isUploadingAvatar = true;
-        feedback = '';
-        feedbackType = '';
+        setStatus?.({ isSaving: false, feedback: '', feedbackType: '' });
 
         try {
             const uploadedAvatarUrl = await settingsService.uploadAvatar(file);
-            feedback = 'Avatar uploaded successfully';
-            feedbackType = 'success';
 
             if (uploadedAvatarUrl) {
                 avatarUrl = withAvatarVersion(uploadedAvatarUrl);
@@ -101,41 +95,63 @@
                 const myAvatarUrl = await settingsService.getMyAvatarUrl();
                 avatarUrl = myAvatarUrl ? withAvatarVersion(myAvatarUrl) : null;
             }
+
+            setStatus?.({
+                isSaving: false,
+                feedback: 'Avatar uploaded successfully',
+                feedbackType: 'success',
+            });
         } catch (error) {
-            feedback = error instanceof Error ? error.message : 'Avatar upload failed';
-            feedbackType = 'error';
+            setStatus?.({
+                isSaving: false,
+                feedback: error instanceof Error ? error.message : 'Avatar upload failed',
+                feedbackType: 'error',
+            });
         } finally {
             isUploadingAvatar = false;
-            target.value = ''; // Reset input
+            target.value = '';
         }
     }
 
     async function handleDeleteAvatar() {
         if (!confirm('Are you sure you want to delete your avatar?')) return;
-        
+
         isUploadingAvatar = true;
-        feedback = '';
-        feedbackType = '';
+        setStatus?.({ isSaving: false, feedback: '', feedbackType: '' });
 
         try {
             await settingsService.deleteAvatar();
-            feedback = 'Avatar deleted successfully';
-            feedbackType = 'success';
             avatarUrl = null;
+            setStatus?.({
+                isSaving: false,
+                feedback: 'Avatar deleted successfully',
+                feedbackType: 'success',
+            });
         } catch (error) {
-            feedback = error instanceof Error ? error.message : 'Avatar deletion failed';
-            feedbackType = 'error';
+            setStatus?.({
+                isSaving: false,
+                feedback: error instanceof Error ? error.message : 'Avatar deletion failed',
+                feedbackType: 'error',
+            });
         } finally {
             isUploadingAvatar = false;
         }
     }
+
+    function handleReset() {
+        fullName = '';
+        bio = '';
+        birthDate = '';
+        twoFactorEnabled = false;
+        notificationsEnabled = false;
+        setStatus?.({ isSaving: false, feedback: 'Click Save to apply.', feedbackType: 'error' });
+    }
 </script>
-<!-- state macht variable reaktiv damit bind sie aendern kann -->
 
 <div id="settings-form">
-    <div class="settings-content">
-        <h2>settings</h2>
-        
+    <form id="settings-form-main" class="settings-content" onsubmit={handleSubmit}>
+        <h2>Settings</h2>
+
         <div class="avatar-section">
             <div class="avatar-preview">
                 {#if avatarUrl}
@@ -149,29 +165,29 @@
                     </div>
                 {/if}
             </div>
-            
+
             <div class="avatar-actions">
-                <input 
-                    type="file" 
-                    accept="image/*" 
-                    bind:this={fileInput} 
-                    onchange={handleAvatarSelect} 
-                    style="display: none;" 
+                <input
+                    type="file"
+                    accept="image/*"
+                    bind:this={fileInput}
+                    onchange={handleAvatarSelect}
+                    style="display: none;"
                 />
-                
-                <button 
-                    type="button" 
-                    class="btn-change-avatar" 
-                    onclick={() => fileInput.click()}
+
+                <button
+                    type="button"
+                    class="btn-change-avatar"
+                    onclick={() => fileInput?.click()}
                     disabled={isUploadingAvatar}
                 >
                     {isUploadingAvatar ? '...' : 'Change Avatar'}
                 </button>
-                
+
                 {#if avatarUrl}
-                    <button 
-                        type="button" 
-                        class="btn-delete-avatar" 
+                    <button
+                        type="button"
+                        class="btn-delete-avatar"
                         onclick={handleDeleteAvatar}
                         disabled={isUploadingAvatar}
                     >
@@ -181,66 +197,18 @@
             </div>
         </div>
 
-        <form id="settings-form-main" onsubmit={handleSubmit} style="display: flex; flex-direction: column; gap: 16px;">
-        <InputField
-            id="full-name"
-            name="fullName"
-            label="Full Name"
-            placeholder="Enter your full name"
-            bind:value={fullName}
-            minlength={1}
-            maxlength={100}
-            summary
-        />
-        <InputField
-            id="bio"
-            name="bio"
-            label="Bio"
-            placeholder="Write something about yourself..."
-            bind:value={bio}
-            minlength={1}
-            maxlength={500}
-            multiline
-            rows={6}
-            summary
-        />
-        <InputField
-            id="birth-date"
-            name="birthDate"
-            label="Date"
-            type="date"
-            placeholder="Select your birth date"
-            bind:value={birthDate}
-            summary
-        />
-        <!-- <ToggleSetting label="very long text blablabla balbalblablablablablabla
-         hmmmmmmmmm still not long enough, what do i do here ahhhhhhhhhhhhhhhhhhhh now we hit the 2nd line,
-          looks weird.... whatever" />
+        <InputField id="full-name" name="fullName" label="Full Name" placeholder="Enter your full name" bind:value={fullName} minlength={1} maxlength={100} summary />
+        <InputField id="bio" name="bio" label="Bio" placeholder="Write something about yourself..." bind:value={bio} minlength={1} maxlength={500} multiline rows={6} summary />
+        <InputField id="birth-date" name="birthDate" label="Date" type="date" placeholder="Select your birth date" bind:value={birthDate} summary />
+
         <ToggleSetting label="Two Factor Authentication" bind:checked={twoFactorEnabled} />
-        <ToggleSetting label="Notifications" bind:checked={notificationsEnabled} /> -->
+        <ToggleSetting label="Notifications" bind:checked={notificationsEnabled} />
 
-        {#if feedback}
-            <p class={feedbackType}>
-                {feedback}
-            </p>
-        {/if}
-
-        {#if isSaving} 
-            <p>Saving...</p>
-        {/if}
-        <!-- ladehinweis, falls backend haengt oder verbindung stirbt -->
-        </form>
-    </div>
-
-    <div class="settings-actions">
-        <Button type="submit" form="settings-form-main" variant="save" class="save-settings">Save</Button>
-    </div>
-
-    <!-- <button form="settings-form-main" type="submit" class="btn-save-small" disabled={isSaving}>
-                {isSaving ? 'Saving...' : 'Save'}
-    </button> -->
+        <div class="form-actions">
+            <Button type="button" variant="reset" onclick={handleReset}>Reset</Button>
+        </div>
+    </form>
 </div>
-<!-- bind: aendert die variable gleich mit -->
 
 <style>
     #settings-form
@@ -278,17 +246,9 @@
     padding: 40px;
     }
 
-    /* p nimmt ein element, dass die class succes hat. p weil nur text */
-    p.success 
+    .form-actions
     {
-        color: #0AEB00;
-        margin: 0;
-    }
-
-    p.error
-    {
-        color: #ff5e5e;
-        margin: 0;
+        margin-top: 20px;
     }
 
     .avatar-section
@@ -358,7 +318,7 @@
 
     .btn-delete-avatar
     {
-        background: transparent;
+        background: rgba(255, 68, 68, 0.15);
         color: #ff5e5e;
         border: 1px solid rgba(255, 94, 94, 0.5);
         padding: 8px 16px;
@@ -383,19 +343,4 @@
         opacity: 0.5;
         cursor: not-allowed;
     }
-
-    .settings-actions
-    {
-        
-        width: 100%;
-        /* display: flex; */
-        align-self: center;
-        margin-top: 16px;
-    }
-    
-.save-settings {
-    background: #eb8100 !important;
-    color: #f30000 !important;
-}
-
 </style>

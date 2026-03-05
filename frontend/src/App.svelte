@@ -1,34 +1,31 @@
-<!--
-This file will be the application shell. It should handle:
-1.  Rooting/Navigation - Which page to show based on URL or state
-2.  Global Layout - Elements that appear on All pages
-3.  Authentication Flow - Show Login Page vs Dashboard
-4.  Global State - Acess to stores for authentication status 
--->
-
-
 <script>
-  import { writable } from 'svelte/store'
+  import { currentPath } from './stores/router'
+  import { authStore } from './stores/authStore'
+
+  import Layout from './components/Layout.svelte'
+  
   import LoginPage from './routes/LoginPage.svelte'
   import HomePage from './routes/HomePage.svelte'
   import DashboardPage from './routes/DashboardPage.svelte'
+  import SignUpPage from './routes/SignUpPage.svelte'
   import SettingPage from './routes/SettingPage.svelte'
 
-
-  const currentPath = writable(window.location.hash.slice(1) || '/')
-
-  window.addEventListener('hashchange', () => {
-    currentPath.set(window.location.hash.slice(1) || '/')
-  })
+  authStore.initFromSession()
 </script>
 
 
-{#if $currentPath === '/'}
-  <HomePage />
-{:else if $currentPath === '/login'}
-  <LoginPage />
-{:else if $currentPath === '/settings'}
-    <SettingPage />
-{:else if $currentPath === '/dashboard'}
-  <DashboardPage />
-{/if}
+<Layout>
+  {#key $currentPath}
+      {#if $currentPath === '/'}
+        <HomePage />
+      {:else if $currentPath === '/login'}
+        <LoginPage />
+      {:else if $currentPath === '/signup'}
+        <SignUpPage />
+      {:else if $currentPath === '/dashboard'}
+        <DashboardPage />
+      {:else if $currentPath === '/setting'}
+        <SettingPage />
+      {/if}
+  {/key}
+</Layout>
