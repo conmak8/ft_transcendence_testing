@@ -1,6 +1,7 @@
 <script>
     import { authStore } from '../stores/authStore';
     import { navigateTo } from '../stores/router';
+    import Logo from './Logo.svelte';
     
     let showDropdown = $state(false);
     
@@ -21,29 +22,37 @@
         showDropdown = false;
         navigateTo('/setting');
     }
+
+    function goToDashboard()
+    {
+        showDropdown = false;
+        navigateTo('/dashboard');
+    }
 </script>
 
 
 <header>
   <div id="header">
-    <div class="header-logo">
-      <img src="src/images/c.svg" alt="Logo"/>
-    </div>
+    {#if $authStore.isLoggedIn}
+    <!-- <button class="header-logo" type="button" onclick={goToDashboard}> -->
+     <Logo onclick={goToDashboard} />
+      <!-- <img src="src/images/c.svg" alt="Logo"/> -->
+    <!-- </button> -->
      <div class="header-nav">
-     {#if $authStore.isLoggedIn}
         <div class="avatar-container">
-            <button class="avatar" onclick={toggleDropdown}>
+            <button class="avatar" type="button" onclick={toggleDropdown}>
                 <p>Image</p>
             </button>
             {#if showDropdown}
                 <div class="dropdown">
-                    <button onclick={goToSettings}>Settings</button>
-                    <button onclick={handleLogout}>Logout</button>
+                    <button type="button" onclick={goToSettings}>Settings</button>
+                    <button type="button" onclick={handleLogout}>Logout</button>
                 </div>
             {/if}
       </div>
-      {/if}
     </div>
+    {/if}
+</div>
 </header>
 
 <style>
@@ -59,8 +68,8 @@
         border-radius: 50%;
         border: 1px solid rgba(10, 235, 0, 0.1);
         background:rgba(255, 255, 255, 0.1);
-        /* padding: 0;
-        margin: 0; */
+        padding: 0;
+        /* margin: 0; */
         display: flex;
         align-items: center;
         justify-content: center;
