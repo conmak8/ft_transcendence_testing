@@ -4,6 +4,8 @@
     import Button from './Button.svelte';
     import { onMount } from 'svelte';
     import { settingsService } from '../services/settingsService';
+    import Button from '../components/Button.svelte';
+
 
     let fullName = $state('');
     let bio = $state('');
@@ -14,12 +16,26 @@
         setStatus?: (status: { isSaving: boolean; feedback: string; feedbackType: 'success' | 'error' | '' }) => void;
     }>();
 
+    let avatarUrl = $state<string | null>(null);
+    let fileInput: HTMLInputElement;
+    let isUploadingAvatar = $state(false);
+
+    // trick cache with a fake query parameter:
+    function withAvatarVersion(url: string): string {
+        const separator = url.includes('?') ? '&' : '?';
+        return `${url}${separator}v=${Date.now()}`;
+    }
+
     onMount(async () => { // beim oeffnen der seite, wird funktion aufgerufen, laedt user daten
         try {
-            const settings = await settingsService.getUserSettings(); // await wartet auf server antwort
+            const [settings, myAvatarUrl] = await Promise.all([
+                settingsService.getUserSettings(),
+                settingsService.getMyAvatarUrl(),
+            ]); // await wartet auf server antwort
             fullName = settings.fullName ?? '';
             bio = settings.bio ?? '';
             birthDate = settings.birthday ?? '';
+            avatarUrl = myAvatarUrl ? withAvatarVersion(myAvatarUrl) : null;
         } catch (error) {
             setStatus?.({
                 isSaving: false,
@@ -56,6 +72,62 @@
         }
     }
 
+    async function handleAvatarSelect(event: Event) {
+        const target = event.target as HTMLInputElement;
+        if (!target.files || target.files.length === 0) return;
+
+        const file = target.files[0];
+        
+        // Check file size (max 2MB)
+        if (file.size > 2 * 1024 * 1024) {
+            feedback = 'Image must be smaller than 2MB';
+            feedbackType = 'error';
+            target.value = ''; // Reset input
+            return;
+        }
+
+        isUploadingAvatar = true;
+        feedback = '';
+        feedbackType = '';
+
+        try {
+            const uploadedAvatarUrl = await settingsService.uploadAvatar(file);
+            feedback = 'Avatar uploaded successfully';
+            feedbackType = 'success';
+
+            if (uploadedAvatarUrl) {
+                avatarUrl = withAvatarVersion(uploadedAvatarUrl);
+            } else {
+                const myAvatarUrl = await settingsService.getMyAvatarUrl();
+                avatarUrl = myAvatarUrl ? withAvatarVersion(myAvatarUrl) : null;
+            }
+        } catch (error) {
+            feedback = error instanceof Error ? error.message : 'Avatar upload failed';
+            feedbackType = 'error';
+        } finally {
+            isUploadingAvatar = false;
+            target.value = ''; // Reset input
+        }
+    }
+
+    async function handleDeleteAvatar() {
+        if (!confirm('Are you sure you want to delete your avatar?')) return;
+        
+        isUploadingAvatar = true;
+        feedback = '';
+        feedbackType = '';
+
+        try {
+            await settingsService.deleteAvatar();
+            feedback = 'Avatar deleted successfully';
+            feedbackType = 'success';
+            avatarUrl = null;
+        } catch (error) {
+            feedback = error instanceof Error ? error.message : 'Avatar deletion failed';
+            feedbackType = 'error';
+        } finally {
+            isUploadingAvatar = false;
+        }
     function handleReset() {
         fullName = '';
         bio = '';
@@ -68,6 +140,55 @@
 <!-- state macht variable reaktiv damit bind sie aendern kann -->
 
 <div id="settings-form">
+    <div class="settings-content">
+        <h2>settings</h2>
+        
+        <div class="avatar-section">
+            <div class="avatar-preview">
+                {#if avatarUrl}
+                    <img src={avatarUrl} alt="User Avatar" />
+                {:else}
+                    <div class="avatar-placeholder">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
+                            <circle cx="12" cy="7" r="4"></circle>
+                        </svg>
+                    </div>
+                {/if}
+            </div>
+            
+            <div class="avatar-actions">
+                <input 
+                    type="file" 
+                    accept="image/*" 
+                    bind:this={fileInput} 
+                    onchange={handleAvatarSelect} 
+                    style="display: none;" 
+                />
+                
+                <button 
+                    type="button" 
+                    class="btn-change-avatar" 
+                    onclick={() => fileInput.click()}
+                    disabled={isUploadingAvatar}
+                >
+                    {isUploadingAvatar ? '...' : 'Change Avatar'}
+                </button>
+                
+                {#if avatarUrl}
+                    <button 
+                        type="button" 
+                        class="btn-delete-avatar" 
+                        onclick={handleDeleteAvatar}
+                        disabled={isUploadingAvatar}
+                    >
+                        Remove
+                    </button>
+                {/if}
+            </div>
+        </div>
+
+        <form id="settings-form-main" onsubmit={handleSubmit} style="display: flex; flex-direction: column; gap: 16px;">
     <form id="settings-form-main" class="settings-content" onsubmit={handleSubmit}>
         <h2>Settings</h2>
         <InputField
@@ -108,7 +229,16 @@
         </div>
 
         <!-- ladehinweis, falls backend haengt oder verbindung stirbt -->
-    </form>
+        </form>
+    </div>
+
+    <div class="settings-actions">
+        <Button type="submit" form="settings-form-main" variant="save" class="save-settings">Save</Button>
+    </div>
+
+    <!-- <button form="settings-form-main" type="submit" class="btn-save-small" disabled={isSaving}>
+                {isSaving ? 'Saving...' : 'Save'}
+    </button> -->
 </div>
 <!-- bind: aendert die variable gleich mit -->
 
@@ -152,5 +282,112 @@
     {
         margin-top: 20px;
     }
+
+    .avatar-section
+    {
+        display: flex;
+        align-items: center;
+        gap: 24px;
+        margin-bottom: 24px;
+        padding-bottom: 24px;
+        border-bottom: 1px solid rgba(10, 235, 0, 0.1);
+    }
+
+    .avatar-preview
+    {
+        width: 100px;
+        height: 100px;
+        border-radius: 50%;
+        overflow: hidden;
+        border: 2px solid rgba(10, 235, 0, 0.5);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background: rgba(15, 19, 20, 0.8);
+    }
+
+    .avatar-preview img
+    {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+    }
+
+    .avatar-placeholder
+    {
+        width: 50px;
+        height: 50px;
+        color: rgba(10, 235, 0, 0.5);
+    }
+
+    .avatar-actions
+    {
+        display: flex;
+        flex-direction: column;
+        gap: 12px;
+    }
+
+    .btn-change-avatar 
+    {
+        background: rgba(10, 235, 0, 0.1);
+        color: #0AEB00;
+        border: 1px solid #0AEB00;
+        padding: 8px 16px;
+        border-radius: 4px;
+        cursor: pointer;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+        font-size: 0.8rem;
+        transition: all 0.2s;
+        font-family: inherit;
+    }
+
+    .btn-change-avatar:hover:not(:disabled)
+    {
+        background: rgba(10, 235, 0, 0.2);
+        box-shadow: 0 0 10px rgba(10, 235, 0, 0.3);
+    }
+
+    .btn-delete-avatar
+    {
+        background: transparent;
+        color: #ff5e5e;
+        border: 1px solid rgba(255, 94, 94, 0.5);
+        padding: 8px 16px;
+        border-radius: 4px;
+        cursor: pointer;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+        font-size: 0.8rem;
+        transition: all 0.2s;
+        font-family: inherit;
+    }
+
+    .btn-delete-avatar:hover:not(:disabled)
+    {
+        background: rgba(255, 94, 94, 0.1);
+        border-color: #ff5e5e;
+        box-shadow: 0 0 10px rgba(255, 94, 94, 0.2);
+    }
+
+    button:disabled
+    {
+        opacity: 0.5;
+        cursor: not-allowed;
+    }
+
+    .settings-actions
+    {
+        
+        width: 100%;
+        /* display: flex; */
+        align-self: center;
+        margin-top: 16px;
+    }
+    
+.save-settings {
+    background: #eb8100 !important;
+    color: #f30000 !important;
+}
 
 </style>

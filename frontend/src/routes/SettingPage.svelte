@@ -79,13 +79,6 @@
     gap: 20px;
   }
 
-  .settings-actions
-  {
-    width: 150px;
-    display: flex;
-    /* flex-direction: column-reverse; */
-  }
-
   main
   {
     padding: 110px 24px 56px;
