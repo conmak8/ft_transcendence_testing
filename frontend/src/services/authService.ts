@@ -1,20 +1,30 @@
-const API_URL = 'http://localhost:3000/api/v1';
+const API_URL = 'http://localhost:8080/api/v1';
 
-export interface LoginResult
+export interface AuthResult
 {
   success: boolean;
   message: string;
+  user?: any;
+  userId?: string;
+  sessionToken?: string;
+  statusCode?: number;
 }
+
+type MyUserResponse = 
+{
+  id: string;
+};
 
 export const authService =
 {
-  validateUsername(name: string): string | null
+  validateUsername(username: string): string | null
   {
-    if (name.length === 0) return "Name is required";
-    if (name.length > 20) return "Max 20 characters";
+    if (username.length === 0) return "Username is required";
+    if (username.length < 6) return "Username must be at least 6 characters";
+    if (username.length > 30) return "Username max 30 characters";
     
     const alphanumeric = /^[a-zA-Z0-9]+$/;
-    if (!alphanumeric.test(name))
+    if (!alphanumeric.test(username))
     {
       return "No symbols allowed ($#%@)";
     }
@@ -22,25 +32,113 @@ export const authService =
     return null;
   },
 
-  async login(username: string, password: string): Promise<LoginResult>
+  validatePassword(password: string): string | null
   {
-    return new Promise((resolve) =>
+    if(password.length === 0) return "Password is required";
+    if(password.length < 12) return "Password must me at least 12 characters";
+    if(password.length > 128) return "Password max 128 characters";
+    
+    return null;
+  },
+
+  validateEmail(email: string) : string | null
+  {
+    if(email.length === 0) return "Email is required";
+    
+    const emailregex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailregex.test(email))
     {
-      setTimeout(() =>
+      return "bad email";
+    }
+
+    return null;
+  },
+
+
+  async login(username: string, password: string): Promise<AuthResult>
+  {
+    try
+    {
+      const response = await fetch(
+        `${API_URL}/login`,
+        {method: 'POST',
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify({username, password})
+      });
+
+      const data = await response.json();
+
+      if(response.ok)
       {
-        if (username === 'testuser' && password === 'test1234')
-        {
-          resolve({ success: true, message: "Welcome!" });
-        }
-        else if (password === 'wrongpass')
-        {
-          resolve({ success: false, message: "Invalid password" });
-        }
-        else
-        {
-          resolve({ success: false, message: "User not found" });
-        }
-      }, 1000);
-    });
+        return {success:true, message: "Login successful", userId:data.userId, sessionToken:data.sessionToken};
+      }
+      else
+      {
+        return{
+          success: false,
+          message: data.message || data.error || "Login failed",
+          statusCode: response.status
+        };
+      }
+    }
+    catch(error)
+    {
+      return{success:false, message: "Network error. Please try again.", statusCode: 0};
+    }
+  },
+
+  
+  async signup(username: string, password:string, email:string) : Promise<AuthResult>
+  {
+    try
+    {
+      const response = await fetch(
+        `${API_URL}/register`,
+        {method: 'POST',
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify({username, password, email})
+      });
+
+      const data = await response.json();
+
+      if(response.ok)
+      {
+        return {success:true, message: "Account created successful", userId: data.userId, sessionToken: data.sessionToken};
+      }
+      else if(response.status === 409)
+      {
+        return {success:false, message: "Username already taken"};
+      }
+      else
+      {
+        return{success:false, message: data.message || "Signup failed", statusCode: response.status};
+      }
+    }
+    catch(error)
+    {
+      return{success:false, message: "Network error. Please try again.", statusCode: 0};
+    }
+  },
+
+  async getMyUser(sessionToken: string): Promise<MyUserResponse | null>
+  {
+    try
+    {
+      const response = await fetch(`${API_URL}/user/me`,
+      {
+        method: 'GET',
+        headers: {
+          'x-session-token': sessionToken,
+        },
+      });
+
+      if (!response.ok) return null;
+
+      return await response.json();
+    }
+    catch (_error)
+    {
+      return null;
+    }
   }
-};
+}

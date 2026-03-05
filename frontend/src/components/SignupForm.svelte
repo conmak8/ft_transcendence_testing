@@ -3,68 +3,101 @@
     import { authService } from '../services/authService';
     import { navigateTo } from '../stores/router';
 
-
     let username = $state('');
-    let password = $state('');
-
+    let password = $state ('');
+    let email = $state('');
+    let confirmPassword = $state('');
+    
     let usernameError = $state('');
     let passwordError = $state('');
-    let hasAuthError = $state(false);
-    
+    let confirmPasswordError = $state('');
+    let emailError = $state('');
+
+
     const { onSubmit } = $props();
 
-    function clearAuthError()
-    {
-        hasAuthError = false;
-    }
 
     function handleSubmit(event)
     {
         event.preventDefault();
         
         // Clear previous errors
+        confirmPasswordError = '';
         usernameError = '';
         passwordError = '';
+        emailError = '';
         
         const usernameValidation = authService.validateUsername(username);
         if (usernameValidation)
         {
             usernameError = usernameValidation;
-            hasAuthError = true;
             return;
         }
-
+        
         const passwordValidation = authService.validatePassword(password);
         if(passwordValidation)
         {
             passwordError = passwordValidation;
-            hasAuthError = true;
             return;
         }
-        
-       
-        onSubmit?.({ username, password });
+
+        if (confirmPassword == '')
+        {
+            confirmPasswordError = 'Please fill out this field';
+            return;
+        }
+
+        if(password !== confirmPassword)
+        {
+            confirmPasswordError = 'Passwords do not match';
+            return;
+        }
+
+        const emailValidation = authService.validateEmail(email)
+        if(emailValidation)
+        {
+            emailError = emailValidation;
+            return ;
+        }
+    
+        onSubmit?.({ username, password, email });
     }
 </script>
 
 
 
-<div class="login-container">
-    <div id="login-form">
-        <h1 class="login-title">LOGIN</h1>
-        <form onsubmit={handleSubmit}>
+
+<div class="signup-container">
+    <div id="signup-form">
+        <h1 class="signup-title">SIGN UP</h1>
+        <form onsubmit={handleSubmit} novalidate>
             <div class="input-group">
                 <p>USERNAME</p>
                 <input
-                type="text"
-                name="username"
-                id="username"
-                placeholder="Username"
+                type = "text"
+                name = "username"
+                id = "username"
+                placeholder = "Username"
                 bind:value={username}
-                oninput={clearAuthError}
-                class:error={hasAuthError}
+                class:error={usernameError}
                 required
                 />
+                {#if usernameError}
+                <p class="error-message">{usernameError}</p>
+                {/if}
+            </div>
+            <div class="input-group">
+                <p>EMAIL</p>
+                <input
+                type = "email"
+                placeholder = "Email"
+                bind:value={email}
+                class:error={emailError}
+                required
+                />
+                {#if emailError}
+                <p class="error-message">{emailError}</p>
+                {/if}
             </div>
             <div class="input-group">
                 <p>PASSWORD</p>
@@ -73,30 +106,43 @@
                 id="password"
                 placeholder="Password"
                 bind:value={password}
-                oninput={clearAuthError}
-                class:error={hasAuthError}
+                class:error={passwordError}
                 required
                 />
-                {#if hasAuthError}
-                    <p class="error-message">Wrong username or password</p>
+                {#if passwordError}
+                <p class="error-message">{passwordError}</p>
                 {/if}
             </div>
-            <Button type="submit">Login</Button>
+             <div class="input-group">
+                <p>CONFIRM PASSWORD</p>
+                <input
+                type="password"
+                id="confirmPassword"
+                placeholder="Confirm Password"
+                bind:value={confirmPassword}
+                class:error={confirmPasswordError}
+                required
+                />
+                {#if confirmPasswordError}
+                <p class="error-message">{confirmPasswordError}</p>
+                {/if}
+            </div>
+            <Button type="submit">Sign up</Button>
         </form>
-        <p class="signup">
-            Don't have an account? 
-            <a href="/signup" onclick={(e) => { e.preventDefault(); navigateTo('/signup'); }}>
-                Sign up
+        <p class="login">
+            Do you have an account? 
+            <a href="/login" onclick={(e) => { e.preventDefault(); navigateTo('/login'); }}>
+                Login
             </a>
         </p>
     </div>
 </div>
-    
-    
+
+
 
 <style>
     
-    .login-container
+    .signup-container
     {
         position: absolute;
         top: 50%;
@@ -104,23 +150,24 @@
         transform: translate(-50%, -50%);
     }
 
-    #login-form
+    #signup-form
     {
         width: auto;
         margin: 0 auto;
         padding: 6rem;
-        padding-top: 2rem;
+        padding-top: 4rem;
+        padding-bottom: 6rem;
         border: 1px solid rgba(10, 235, 0, 0.1);
+        border-radius: 0px;
         background: rgba(15, 19, 20, 0.6);
         backdrop-filter: blur(10px);
-        border-radius: 0px;
         transition: all 0.3s;
     }
     
-    #login-form:hover
+    #signup-form:hover
     {
         border-color: #0AEB00;
-        /* background: rgba(10, 235, 0, 0.02); */
+        background: rgba(10, 235, 0, 0.02);
     }
     
     input
@@ -134,7 +181,7 @@
         color: white;
     }
 
-      input:focus
+    input:focus
     {
         outline: none;
         border-color: #B13BCC;
@@ -146,6 +193,11 @@
         color: white !important;
         -webkit-text-fill-color: white !important;
         -webkit-box-shadow: 0 0 0 1000px #1a1a1a inset !important;
+    }
+
+    input.error
+    {
+        border: 2px solid #ff4444;
     }
 
     .input-group
@@ -162,11 +214,6 @@
         margin: 0 0 8px 13px;
     }
 
-    input.error
-    {
-        border: 2px solid #ff4444;
-    }
-
     p.error-message
     {
         color: #ff4444;
@@ -174,18 +221,16 @@
         margin: 8px 0 0 13px;
         text-align: left;
     }
- 
-    .login-title
+    
+    .signup-title
     {
         color: #B13BCC;
         letter-spacing: 0.2em;
         text-align: center;
-        margin-bottom: 1rem;
-        padding: 2rem;
-        /* transform: translateX(-90px); */
+        margin-bottom: 3rem;
     }
 
-    .signup
+    .login
     {
         text-align: center;
         margin-top: 3rem;
@@ -194,7 +239,7 @@
         
     }
 
-    .signup a
+    .login a
     {
         color: #0AEB00;
         text-decoration: none;
@@ -202,10 +247,10 @@
         margin-left: 20px;
     }
 
-    .signup a:hover
+    .login a:hover
     {
         text-decoration: underline;
         /* color: #B13BCC; */
     }
-    
+
 </style>
