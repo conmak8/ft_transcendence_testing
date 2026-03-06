@@ -87,10 +87,10 @@
 
     .avatar
     {
-        width: 60px;
-        height: 60px;
+        width: 50px;
+        height: 50px;
         border-radius: 50%;
-        border: 1px solid rgba(10, 235, 0, 0.1);
+        border: none;
         background:rgba(255, 255, 255, 0.1);
         padding: 0;
         /* margin: 0; */
@@ -102,7 +102,10 @@
 
     .avatar:hover
     {
-          border: 1px solid #0AEB00;
+        /* border:  0px solid #B13BCC; */
+        outline: 2px solid #B13BCC;
+        /* outline-offset: 2px; */
+        /* transform: scale(1.1); */
     }
     .dropdown
     {
