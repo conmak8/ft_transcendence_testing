@@ -4,6 +4,7 @@
     import Button from './Button.svelte';
     import { onMount } from 'svelte';
     import { settingsService } from '../services/settingsService';
+    import { avatarStore } from '../stores/avatarStore';
 
     let fullName = $state('');
     let bio = $state('');
@@ -34,6 +35,7 @@
             bio = settings.bio ?? '';
             birthDate = settings.birthday ?? '';
             avatarUrl = myAvatarUrl ? withAvatarVersion(myAvatarUrl) : null;
+            avatarStore.set(avatarUrl);
         } catch (error) {
             setStatus?.({
                 isSaving: false,
@@ -95,6 +97,7 @@
                 const myAvatarUrl = await settingsService.getMyAvatarUrl();
                 avatarUrl = myAvatarUrl ? withAvatarVersion(myAvatarUrl) : null;
             }
+            avatarStore.set(avatarUrl);
 
             setStatus?.({
                 isSaving: false,
@@ -122,6 +125,7 @@
         try {
             await settingsService.deleteAvatar();
             avatarUrl = null;
+            avatarStore.set(null);
             setStatus?.({
                 isSaving: false,
                 feedback: 'Avatar deleted successfully',

@@ -1,11 +1,10 @@
 <script>
     import { authStore } from '../stores/authStore';
-    import { navigateTo } from '../stores/router';
-    import { currentPath } from '../stores/router'; //need this one as to know if i render avatar block
+    import { currentPath, navigateTo } from '../stores/router'; //need this one as to know if i render avatar block
     import { settingsService } from '../services/settingsService';
+    import { avatarStore } from '../stores/avatarStore';
     
     let showDropdown = $state(false);
-    let avatarUrl = $state(null);
     
     function toggleDropdown()
     {
@@ -26,23 +25,30 @@
         showDropdown = false;
         navigateTo('/setting');
     }
+// as the browser to treat as a new URL, so it reloads the latest avatar/ no old cached image
+    function withAvatarVersion(url)
+    {
+        const separator = url.includes('?') ? '&' : '?';
+        return `${url}${separator}v=${Date.now()}`;
+    }
 
     // Keep avatar loading in one place so every route gets the same header behavior.
     async function loadAvatar()
     {
         if (!$authStore.isLoggedIn)
         {
-            avatarUrl = null;
+            avatarStore.set(null);
             return;
         }
 
         try
         {
-            avatarUrl = await settingsService.getMyAvatarUrl();
+            const myAvatarUrl = await settingsService.getMyAvatarUrl();
+            avatarStore.set(myAvatarUrl ? withAvatarVersion(myAvatarUrl) : null);
         }
         catch (_error)
         {
-            avatarUrl = null;
+            avatarStore.set(null);
         }
     }
 
@@ -50,7 +56,7 @@
     $effect(() => {
         if (!$authStore.isLoggedIn)
         {
-            avatarUrl = null;
+            avatarStore.set(null);
             showDropdown = false;
             return;
         }
@@ -71,8 +77,8 @@
         <div class="avatar-container">
             <!-- Always render the avatar button: image for logged-in users, default icon otherwise. -->
             <button class="avatar" onclick={toggleDropdown} type="button" aria-label="Open user menu">
-                {#if avatarUrl}
-                    <img class="avatar-image" src={avatarUrl} alt="User avatar" />
+                {#if $avatarStore}
+                    <img class="avatar-image" src={$avatarStore} alt="User avatar" />
                 {:else}
                     <svg class="avatar-default-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                         <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
