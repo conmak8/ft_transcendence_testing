@@ -1,6 +1,7 @@
 <script>
     import { authStore } from '../stores/authStore';
     import { navigateTo } from '../stores/router';
+    import { currentPath } from '../stores/router'; //need this one as to know if i render avatar block
     import { settingsService } from '../services/settingsService';
     
     let showDropdown = $state(false);
@@ -65,6 +66,8 @@
       <img src="src/images/c.svg" alt="Logo"/>
     </div>
     <div class="header-nav">
+    <!-- When route becomes /, that whole block is not rendered. -->
+        {#if $currentPath !== '/'}
         <div class="avatar-container">
             <!-- Always render the avatar button: image for logged-in users, default icon otherwise. -->
             <button class="avatar" onclick={toggleDropdown} type="button" aria-label="Open user menu">
@@ -84,6 +87,7 @@
                 </div>
             {/if}
         </div>
+        {/if}
     </div>
   </div>
 </header>
