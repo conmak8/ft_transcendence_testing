@@ -31,15 +31,6 @@ export const registerPlugins = (fastify: FastifyInstance) => {
     },
   });
 
-  fastify.register(fastifyRateLimit, {
-    global: true,
-    max: 100,
-    timeWindow: '1 minute',
-    keyGenerator: (req: FastifyRequest) => {
-      return req?.session?.userId ?? req.ip;
-    },
-  });
-
   // This is for cleaning up all inactive session from the DB every 10 minutes
   const task = new AsyncTask('Clear inactive sessions', () => {
     return sessionRepository.deleteInactiveSessions(fastify.db);
