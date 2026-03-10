@@ -31,7 +31,7 @@ export async function getAllRooms(): Promise<Room[]>
         {
             id: '1',
             name: 'Test Room',
-            currentPlayers: 2,
+            currentPlayers: 4,
             maxPlayers: 4,
             entryFee: 10
         },
@@ -41,6 +41,55 @@ export async function getAllRooms(): Promise<Room[]>
             currentPlayers: 4,
             maxPlayers: 4,
             entryFee: 5
+        },
+        {
+            id: '3',
+            name: 'Third Room',
+            currentPlayers: 1,
+            maxPlayers: 7,
+            entryFee: 254
+        },
+        {
+            id: '4',
+            name: 'Foor Room',
+            currentPlayers: 3,
+            maxPlayers: 4,
+            entryFee: 105
+        },
+        {
+            id: '5',
+            name: '5 Room',
+            currentPlayers: 1,
+            maxPlayers: 8,
+            entryFee: 5
+        },
+        {
+            id: '6',
+            name: '6 Room',
+            currentPlayers: 7,
+            maxPlayers: 7,
+            entryFee: 24
+        },
+        {
+            id: '7',
+            name: 'Test Room',
+            currentPlayers: 2,
+            maxPlayers: 4,
+            entryFee: 10
+        },
+        {
+            id: '8',
+            name: '8 Room',
+            currentPlayers: 4,
+            maxPlayers: 4,
+            entryFee: 5
+        },
+        {
+            id: '9',
+            name: '9 Room',
+            currentPlayers: 1,
+            maxPlayers: 7,
+            entryFee: 254
         }
     ])
 }

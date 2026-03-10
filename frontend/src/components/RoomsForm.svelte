@@ -12,9 +12,9 @@
         isExpanded = !isExpanded;
     }
 
-    function refresh()
+    async function refresh()
     {
-        getAllRooms().then((rooms)=> {allRooms = rooms;})
+        allRooms = await getAllRooms();
     }
 
     onMount(() => 
@@ -38,8 +38,9 @@
     </Button>
     
     {#if isExpanded}
-        <div class="rooms-panel">
-            <h2>Rooms</h2>
+    <div class="rooms-panel">
+        <h2>Rooms</h2>
+        <Button type="button">Create Room</Button>
             {#each allRooms as room (room.id)}
                 <RoomCard {room}></RoomCard>
             {/each}
@@ -73,6 +74,7 @@
         background: rgba(15, 19, 20, 0.6);
         backdrop-filter: blur(10px);
         padding: 36px;
+        overflow-y: auto;
     }
 
     .rooms-panel:hover
