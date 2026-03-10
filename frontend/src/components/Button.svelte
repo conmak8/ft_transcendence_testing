@@ -11,7 +11,8 @@
             | 'expand-trigger-left'
             | 'expand-trigger-right'
             | 'expand-trigger-bottom'
-            | 'join';
+            | 'join'
+            | 'create';
         onclick?: (event: MouseEvent) => void;
         ariaExpanded?: boolean;
         ariaLabel?: string;
@@ -43,6 +44,7 @@
     class:expand-trigger-right={variant === 'expand-trigger-right'}
     class:expand-trigger-bottom={variant === 'expand-trigger-bottom'}
     class:join={variant === 'join'}
+    class:create={variant === 'create'}
 >
     {@render children()}
 </button>
@@ -68,6 +70,7 @@
     
     button:disabled
     {
+        /* background: #ffffff38; */
         opacity: 0.6;
         cursor: not-allowed;
     }
@@ -139,5 +142,19 @@
         display: flex;
         align-items: center;
         justify-content: center;
+    }
+
+    button.create
+    {
+        width: 40px;
+        height: 40px;
+        float: right;
+        font-size: 14px;
+        padding: 0;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border: 1px solid #B13BCC;
+        background: none;
     }
 </style>

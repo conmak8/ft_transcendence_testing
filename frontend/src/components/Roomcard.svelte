@@ -7,10 +7,11 @@
 </script>
 
 <div class="room-card" class:full={isFull}>
-    <div class="room-header">
-        <h3 class="room-name">{room.name}</h3>
-        <span class="fee">Coins: {room.entryFee}</span>
+    <h3 class="room-name">{room.name}</h3>
+    <div class="fee-container">
+        <span class="fee">💰 {room.entryFee}</span>
     </div>
+    <hr class="line" /> 
 
     <div class="room-body">
         <div class="players">
@@ -22,7 +23,7 @@
                 {#if isFull}
                 FULL
                 {:else}
-                {room.currentPlayers} / {room.maxPlayers}
+                {room.currentPlayers} / {room.maxPlayers} Players
                 {/if}
             </span>
         </div>
@@ -36,8 +37,7 @@
         padding: 1.4rem;
         border: 1px solid rgba(10, 235, 0, 0.1);
         background: rgba(15, 19, 20, 0.6);
-        margin-bottom: 1rem;
-        transition: all 0.2s ease;
+        margin-bottom: 2rem;
     }
 
     .room-card:hover
@@ -45,33 +45,40 @@
         border-color: #0AEB00;
     }
 
-    .room-header
-    {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-    }
-
     .room-name
     {
         color:  #B13BCC;
         font-size: 20px;
         font-weight: 800;
+        text-align: left;
+        margin: 0;
     }
 
-    .fee
+    .line
+    {
+        border: none;
+        border-top: 1.5px solid #b13bcc77;
+        width: 100%;
+    }
+
+    .fee-container
+    {
+        display: flex;
+        justify-content: flex-end;
+        width: 100%;
+    }
+    .fee 
     {
         color: #c8eb00;
-        font-size: 13px;
-        font-weight: 500;
+        font-size: 14px;
+        font-weight: 600;
     }
-
+    
     .room-body
     {
-    margin-top: 0.8rem;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
     }
 
     .players
@@ -82,33 +89,31 @@
 
     .player-bar
     {
-    height: 6px;
-    background: rgba(255,255,255,0.08);
-    margin-bottom: 4px;
+        height: 6px;
+        background: rgba(255,255,255,0.08);
+        margin-top: 16px;
     }
 
     .player-fill
     {
-    height: 100%;
-    background: #0AEB00;
-    transition: width 0.3s ease;
+        height: 100%;
+        background: #0AEB00;
+        transition: width 0.3s ease;
     }
 
    .player-count
     {
-    font-size: 13px;
-    color: #ccc;
+        font-size: 13px;
+        color: #ccc;
     }
 
     .room-card.full .player-fill
     {
-    background: #ff4444;
+        background: #ff4444;
     }
 
     .room-card.full .player-count
     {
-    color: #ff4444;
+        color: #ff4444;
     }
-    
- 
 </style>

@@ -4,8 +4,23 @@
     import RoomCard from './Roomcard.svelte';
     import Button from './Button.svelte';
 
+
     let isExpanded = $state(false);
     let allRooms = $state<Room[]>([]);
+
+    // 1. Add Filter States
+    let searchQuery = $state('');
+    let sortType = $state<'players' | 'fee'>('players');
+
+    // 2. Create a derived filtered list (Svelte 5 syntax)
+    let filteredRooms = $derived(
+        allRooms
+            .filter(room => room.name.toLowerCase().includes(searchQuery.toLowerCase()))
+            .sort((a, b) => {
+                if (sortType === 'fee') return b.entryFee - a.entryFee;
+                return b.currentPlayers - a.currentPlayers;
+            })
+    );
 
     function togglePanel()
     {
@@ -26,6 +41,8 @@
     });
 </script>
 
+
+
 <aside class="rooms-drawer" class:expanded={isExpanded}>
     <Button
         type="button"
@@ -38,11 +55,28 @@
     </Button>
     
     {#if isExpanded}
-    <div class="rooms-panel">
-        <h2>Rooms</h2>
-        <Button type="button">Create Room</Button>
-            {#each allRooms as room (room.id)}
+        <div class="rooms-panel">
+            <div class="rooms-header">
+                <!-- <h2>Rooms</h2> -->
+                <Button variant="create" type="button">+</Button>
+            </div>
+           <div class="filter-toolbar">
+                <input 
+                    type="text" 
+                    placeholder="Search..." 
+                    bind:value={searchQuery}
+                    class="search-input"
+                />
+                <select bind:value={sortType} class="sort-select">
+                    <option value="players">Players</option>
+                    <option value="fee">Entry Fee</option>
+                </select>
+            </div>
+            
+            {#each filteredRooms as room (room.id)}
                 <RoomCard {room}></RoomCard>
+            {:else}
+                <p class="no-rooms">No rooms found...</p>
             {/each}
         </div>
     {/if}
@@ -62,7 +96,7 @@
 
     .rooms-drawer.expanded
     {
-        width: max(320px, 33.333vw);
+        width: max(320px, 15vw);
     }
 
     .rooms-panel
@@ -83,6 +117,14 @@
         background: rgba(10, 235, 0, 0.02);
     }
 
+    .rooms-header
+    {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        margin-bottom: 14px;
+    }
+
     h2
     {
         margin: 0 0 14px;
@@ -90,5 +132,66 @@
         text-transform: uppercase;
         letter-spacing: 1px;
         text-align: left;
+    }
+
+
+    /* Custom scrollbar maybe not work for Firefox */
+    .rooms-panel::-webkit-scrollbar
+    {
+        width: 12px;
+    }
+
+    .rooms-panel::-webkit-scrollbar-thumb
+    {
+        background: #B13BCC;
+    }
+
+    .rooms-panel::-webkit-scrollbar-track
+    {
+        background: rgba(30, 157, 189, 0.3);
+        /* background: rgba(0, 0, 0, 0.3); */
+    }
+
+
+
+    .filter-toolbar
+    {
+        display: flex;
+        gap: 8px;
+        margin-bottom: 20px;
+    }
+
+    .search-input, .sort-select
+    {
+        background: rgba(0, 0, 0, 0.4);
+        border: 1px solid rgba(10, 235, 0, 0.3);
+        color: #0AEB00;
+        padding: 6px 10px;
+        outline: none;
+    }
+
+    .search-input
+    {
+        flex: 1;
+    }
+
+    .search-input:focus, .sort-select:focus
+    {
+        border-color: #0AEB00;
+        /* box-shadow: 0 0 5px rgba(10, 235, 0, 0.5); */
+    }
+
+    .sort-select option
+    {
+        background: #0F1314;
+        color: #0AEB00;
+    }
+
+    .no-rooms
+    {
+        color: #666;
+        font-style: italic;
+        text-align: center;
+        margin-top: 20px;
     }
 </style>
