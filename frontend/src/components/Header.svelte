@@ -1,12 +1,20 @@
 <script>
     import { authStore } from '../stores/authStore';
+<<<<<<< HEAD
     import { navigateTo } from '../stores/router';
     import Logo from './Logo.svelte';
+=======
+    import { currentPath, navigateTo } from '../stores/router'; //need this one as to know if i render avatar block
+    import { settingsService } from '../services/settingsService';
+    import { avatarStore } from '../stores/avatarStore';
+>>>>>>> origin/main
     
     let showDropdown = $state(false);
     
     function toggleDropdown()
     {
+        if (!$authStore.isLoggedIn)
+            return;
         showDropdown = !showDropdown;
     }
     
@@ -22,16 +30,58 @@
         showDropdown = false;
         navigateTo('/setting');
     }
+<<<<<<< HEAD
 
     function goToDashboard()
     {
         showDropdown = false;
         navigateTo('/dashboard');
     }
+=======
+// as the browser to treat as a new URL, so it reloads the latest avatar/ no old cached image
+    function withAvatarVersion(url)
+    {
+        const separator = url.includes('?') ? '&' : '?';
+        return `${url}${separator}v=${Date.now()}`;
+    }
+
+    // Keep avatar loading in one place so every route gets the same header behavior.
+    async function loadAvatar()
+    {
+        if (!$authStore.isLoggedIn)
+        {
+            avatarStore.set(null);
+            return;
+        }
+
+        try
+        {
+            const myAvatarUrl = await settingsService.getMyAvatarUrl();
+            avatarStore.set(myAvatarUrl ? withAvatarVersion(myAvatarUrl) : null);
+        }
+        catch (_error)
+        {
+            avatarStore.set(null);
+        }
+    }
+
+    // Re-run when auth state changes (login/logout) to switch between user avatar and default icon.
+    $effect(() => {
+        if (!$authStore.isLoggedIn)
+        {
+            avatarStore.set(null);
+            showDropdown = false;
+            return;
+        }
+
+        void loadAvatar();
+    });
+>>>>>>> origin/main
 </script>
 
 
 <header>
+<<<<<<< HEAD
     <div id="header">
         {#if $authStore.isLoggedIn}
         <Logo handleLogoClick ={goToDashboard} />
@@ -47,9 +97,37 @@
                     </div>
                 {/if}
             </div>
+=======
+  <div id="header">
+    <div class="header-logo">
+      <img src="src/images/c.svg" alt="Logo"/>
+    </div>
+    <div class="header-nav">
+    <!-- When route becomes /, that whole block is not rendered. -->
+        {#if $currentPath !== '/' && $currentPath !== '/login' && $currentPath !== '/signup'}
+        <div class="avatar-container">
+            <!-- Always render the avatar button: image for logged-in users, default icon otherwise. -->
+            <button class="avatar" onclick={toggleDropdown} type="button" aria-label="Open user menu">
+                {#if $avatarStore}
+                    <img class="avatar-image" src={$avatarStore} alt="User avatar" />
+                {:else}
+                    <svg class="avatar-default-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
+                        <circle cx="12" cy="7" r="4"></circle>
+                    </svg>
+                {/if}
+            </button>
+            {#if $authStore.isLoggedIn && showDropdown}
+                <div class="dropdown">
+                    <button onclick={goToSettings}>Settings</button>
+                    <button onclick={handleLogout}>Logout</button>
+                </div>
+            {/if}
+>>>>>>> origin/main
         </div>
         {/if}
     </div>
+  </div>
 </header>
 
 <style>
@@ -97,7 +175,11 @@
         display: flex;
         align-items: center;
         justify-content: center;
+<<<<<<< HEAD
         cursor:pointer;
+=======
+        padding: 0;
+>>>>>>> origin/main
     }
 
     .avatar:hover
@@ -106,6 +188,21 @@
         outline: 2px solid #B13BCC;
         /* outline-offset: 2px; */
         /* transform: scale(1.1); */
+    }
+
+    .avatar-image
+    {
+        width: 100%;
+        height: 100%;
+        border-radius: 50%;
+        object-fit: cover;
+    }
+
+    .avatar-default-icon
+    {
+        width: 24px;
+        height: 24px;
+        color: #0AEB00;
     }
     .dropdown
     {
@@ -141,5 +238,9 @@
     {
         background: #B13BCC;
     }
+<<<<<<< HEAD
 
 </style>
+=======
+</style>
+>>>>>>> origin/main

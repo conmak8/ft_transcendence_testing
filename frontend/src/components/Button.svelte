@@ -16,9 +16,10 @@
         onclick?: (event: MouseEvent) => void;
         ariaExpanded?: boolean;
         ariaLabel?: string;
+        class?: string;
         children: any;
     }
-    
+
     const {
         type = 'button',
         disabled = false,
@@ -27,7 +28,9 @@
         onclick,
         ariaExpanded,
         ariaLabel,
+        class: className = '',
         children,
+        ...rest
     }: Props = $props();
 </script>
 
@@ -38,6 +41,7 @@
     {onclick}
     aria-expanded={ariaExpanded}
     aria-label={ariaLabel}
+    class={className}
     class:save={variant === 'save'}
     class:reset={variant === 'reset'}
     class:expand-trigger-left={variant === 'expand-trigger-left'}
@@ -62,12 +66,12 @@
         cursor: pointer;
         transition: background 0.2s;
     }
-    
+
     button:hover:not(:disabled)
     {
         background: #B13BCC;
     }
-    
+
     button:disabled
     {
         /* background: #ffffff38; */
@@ -131,6 +135,7 @@
         padding: 0;
         letter-spacing: 1px;
     }
+<<<<<<< HEAD
 
     button.join
     {
@@ -158,3 +163,6 @@
         background: none;
     }
 </style>
+=======
+</style>
+>>>>>>> origin/main
