@@ -1,13 +1,10 @@
 <script>
     import { authStore } from '../stores/authStore';
-<<<<<<< HEAD
     import { navigateTo } from '../stores/router';
     import Logo from './Logo.svelte';
-=======
     import { currentPath, navigateTo } from '../stores/router'; //need this one as to know if i render avatar block
     import { settingsService } from '../services/settingsService';
     import { avatarStore } from '../stores/avatarStore';
->>>>>>> origin/main
     
     let showDropdown = $state(false);
     
@@ -30,15 +27,14 @@
         showDropdown = false;
         navigateTo('/setting');
     }
-<<<<<<< HEAD
 
     function goToDashboard()
     {
         showDropdown = false;
         navigateTo('/dashboard');
     }
-=======
-// as the browser to treat as a new URL, so it reloads the latest avatar/ no old cached image
+
+    // as the browser to treat as a new URL, so it reloads the latest avatar/ no old cached image
     function withAvatarVersion(url)
     {
         const separator = url.includes('?') ? '&' : '?';
@@ -76,28 +72,10 @@
 
         void loadAvatar();
     });
->>>>>>> origin/main
 </script>
 
 
 <header>
-<<<<<<< HEAD
-    <div id="header">
-        {#if $authStore.isLoggedIn}
-        <Logo handleLogoClick ={goToDashboard} />
-        <div class="header-nav">
-            <div class="avatar-container">
-                <button class="avatar" type="button" onclick={toggleDropdown}>
-                    <p>Image</p>
-                </button>
-                {#if showDropdown}
-                    <div class="dropdown">
-                        <button type="button" onclick={goToSettings}>Settings</button>
-                        <button type="button" onclick={handleLogout}>Logout</button>
-                    </div>
-                {/if}
-            </div>
-=======
   <div id="header">
     <div class="header-logo">
       <img src="src/images/c.svg" alt="Logo"/>
@@ -123,7 +101,6 @@
                     <button onclick={handleLogout}>Logout</button>
                 </div>
             {/if}
->>>>>>> origin/main
         </div>
         {/if}
     </div>
