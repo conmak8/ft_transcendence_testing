@@ -63,9 +63,18 @@ async function extractErrorMessage(response: Response): Promise<string>
 
 export function buildAuthHeaders(): HeadersInit
 {
-  const sessionToken = localStorage.getItem('sessionToken'); // wenn session token exists, dann nimm den
-  if (sessionToken) {
-    return { 'x-session-token': sessionToken };
+  const rawAuthSession = sessionStorage.getItem('auth_session');
+
+  if (rawAuthSession) {
+    try {
+      const parsed = JSON.parse(rawAuthSession) as { sessionToken?: string };
+
+      if (parsed.sessionToken) {
+        return { 'x-session-token': parsed.sessionToken };
+      }
+    } catch {
+      sessionStorage.removeItem('auth_session');
+    }
   }
 
   // ansonsten dev token in header

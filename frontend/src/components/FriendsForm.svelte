@@ -248,8 +248,8 @@
                 >
                     <svg viewBox="0 0 24 24" aria-hidden="true">
                         <path
-                            d="M12 2a6 6 0 0 0-6 6v3.6L4.3 14a1 1 0 0 0 .7 1.7h14a1 1 0 0 0 .7-1.7L18 11.6V8a6 6 0 0 0-6-6Zm0 20a3 3 0 0 0 2.8-2h-5.6A3 3 0 0 0 12 22Z" //vektorenbild einer kleinen Glocke
-                        />
+                            d="M12 2a6 6 0 0 0-6 6v3.6L4.3 14a1 1 0 0 0 .7 1.7h14a1 1 0 0 0 .7-1.7L18 11.6V8a6 6 0 0 0-6-6Zm0 20a3 3 0 0 0 2.8-2h-5.6A3 3 0 0 0 12 22Z" />
+                            <!-- vektorenbild einer kleinen Glocke -->
                     </svg>
                 </button>
             </div>
@@ -270,9 +270,8 @@
                                 <button type="button" class="profile-btn" aria-label={`Open profile of ${request.userFrom.username}`}>
                                     <svg viewBox="0 0 24 24" aria-hidden="true">
                                         <path
-                                            d="M12 12c2.76 0 5-2.24 5-5s-2.24-5-5-5-5 2.24-5 5 2.24 5 5 5Zm0 2c-4.42 0-8 3.58-8 8h16c0-4.42-3.58-8-8-8Z" // profilbild vektorenbild
-                                        
-                                        />
+                                            d="M12 12c2.76 0 5-2.24 5-5s-2.24-5-5-5-5 2.24-5 5 2.24 5 5 5Zm0 2c-4.42 0-8 3.58-8 8h16c0-4.42-3.58-8-8-8Z" />
+                                            <!-- profilbild vektorenbild -->
                                     </svg>
                                 </button>
                                 <button
