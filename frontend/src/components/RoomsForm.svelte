@@ -3,10 +3,13 @@
     import { getAllRooms } from '../services/roomService.svelte.ts';
     import RoomCard from './Roomcard.svelte';
     import Button from './Button.svelte';
+    import CreateRoomForm from './CreateRoomForm.svelte';
 
 
     let isExpanded = $state(true);
+    let showCreateModal = $state(false);
     let allRooms = $state<Room[]>([]);
+
 
     // 1. Add Filter States
     let searchQuery = $state('');
@@ -21,6 +24,11 @@
                 return b.currentPlayers - a.currentPlayers;
             })
     );
+
+    function handleCreate()
+    {
+        showCreateModal = !showCreateModal;
+    }
 
     function togglePanel()
     {
@@ -54,11 +62,18 @@
         ROOMS
     </Button>
     
+    {#if showCreateModal}
+    <CreateRoomForm 
+            onClose={() => showCreateModal = false} 
+            onCreate={handleCreate} 
+        />
+    {/if}
+
     {#if isExpanded}
-        <div class="rooms-panel">
-            <div class="rooms-header">
-                <h2>Rooms : <span class="room-count">{allRooms.length}</span></h2>
-                <Button variant="create" type="button">+</Button>
+    <div class="rooms-panel">
+        <div class="rooms-header">
+            <h2>Rooms : <span class="room-count">{allRooms.length}</span></h2>
+            <Button variant="create" type="button" onclick={() => showCreateModal = true}>+</Button>
             </div>
            <div class="filter-toolbar">
                 <input 
@@ -87,11 +102,11 @@
     {
         /* background: #0ceb00; */
         /* border: 0.4px solid #B13BCC; */
-        /* color: #fff; */
-        color: #0ceb00;
+        color: #fff;
+        /* color: #0ceb00; */
         padding: 2px 10px;
-        font-size: 0.9em;
-        margin-left: 8px;
+        font-size: 1.4em;
+        /* margin-left: 8px; */
         font-weight: bold;
     }
     .rooms-drawer
@@ -107,7 +122,7 @@
 
     .rooms-drawer.expanded
     {
-        width: max(320px, 15vw);
+        width: max(320px, calc(33.333vw/1.5));
     }
 
     .rooms-panel
@@ -138,7 +153,7 @@
 
     h2
     {
-        margin: 0 0 14px;
+        /* margin: 0 0 14px; */
         color: #0AEB00;
         text-transform: uppercase;
         letter-spacing: 1px;

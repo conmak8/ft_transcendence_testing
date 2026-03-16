@@ -12,7 +12,8 @@
             | 'expand-trigger-right'
             | 'expand-trigger-bottom'
             | 'join'
-            | 'create';
+            | 'create'
+            | 'cancel';
         onclick?: (event: MouseEvent) => void;
         ariaExpanded?: boolean;
         ariaLabel?: string;
@@ -49,6 +50,7 @@
     class:expand-trigger-bottom={variant === 'expand-trigger-bottom'}
     class:join={variant === 'join'}
     class:create={variant === 'create'}
+    class:cancel={variant === 'cancel'}
 >
     {@render children()}
 </button>
@@ -152,13 +154,26 @@
     {
         width: 40px;
         height: 40px;
-        float: right;
+        /* float: right; */
         font-size: 14px;
-        padding: 0;
+        padding: 2px;
         display: flex;
         align-items: center;
         justify-content: center;
         border: 1px solid #B13BCC;
         background: none;
+    }
+
+    button.cancel
+    {
+        background: transparent;
+        color: #ff4444;
+        border: 1px solid #ff4444;
+    }
+
+     button.cancel:hover
+    {
+        background: #ff4444;
+        color: #fff;
     }
 </style>

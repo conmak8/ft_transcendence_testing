@@ -7,9 +7,9 @@
 
 <main>
   <div class="dashboard-layout">
+    <ChatForm />
     <FriendsForm />
     <RoomsForm />
-    <ChatForm />
   </div>
 </main>
 

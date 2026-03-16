@@ -7,16 +7,16 @@
 </script>
 
 <div class="room-card" class:full={isFull}>
-    <div class="room-name">{room.name}</div>
-    <span class="fee">{room.entryFee} 💰</span>
-    <hr class="line" /> 
-    
+    <div class="room-header">
+        <div class="room-name">{room.name}</div>
+        <span class="fee">{room.entryFee} 💰</span>
+    </div>
+    <hr class="line" />
     <div class="room-body">
         <div class="players">
             <div class="player-bar">
                 <div class="player-fill" style="width:{fillPercent}%"></div>
             </div>
-            
             <span class="player-count">
                 {#if isFull}
                 FULL
@@ -30,9 +30,16 @@
 </div>
 
 <style>
+    .room-header
+    {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+    }
+
     .room-card
     {
-        padding: 18px;
+        padding: 26px;
         border: 1px solid rgba(10, 235, 0, 0.1);
         background: rgba(15, 19, 20, 0.6);
         margin-bottom: 1rem;
@@ -48,9 +55,7 @@
         color:  #B13BCC;
         font-size: 20px;
         font-weight: 800;
-        text-align: left;
-        margin-bottom: 8px;
-        /* margin-inline-start: 8px; */
+        /* text-align: left; */
     }
 
     .fee 
@@ -59,8 +64,7 @@
         color: #c8eb00;
         font-size: 14px;
         font-weight: 600;
-        text-align: left;
-        /* margin-inline-start: 8px; */
+        /* text-align: left; */
 
     }
 
@@ -69,6 +73,7 @@
         border: none;
         border-top: 1.5px solid #b13bcc77;
         width:100%;
+        /* padding: 4px; */
     }
 
     
@@ -77,19 +82,20 @@
         display: flex;
         justify-content: space-between;
         align-items: center;
+        padding-top: 12px;
     }
 
     .players
     {
-       width: 40%;
+       width: 60%;
         
     }
 
     .player-bar
     {
-        height: 10px;
+        height: 8px;
         background: rgba(255,255,255,0.08);
-        margin-top: 16px;
+        margin: 8px;
     }
 
     .player-fill
@@ -102,7 +108,9 @@
    .player-count
     {
         font-size: 13px;
-        color: #ccc;
+        color: #fff;
+        /* font-weight: Bold; */
+        /* margin-top: 8px; */
     }
 
     .room-card.full .player-fill
