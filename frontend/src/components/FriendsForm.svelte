@@ -34,20 +34,33 @@
 
         try
         {
-            const [loadedFriends, loadedOnlineUsers] = await Promise.all([ //parallel 
-                friendsService.getMyFriends(),
-                friendsService.getOnlineUsers(),
-            ]);
-            const [loadedIncomingRequests, loadedOutgoingRequests] = await Promise.all([ // parallel
-                friendsService.getIncomingFriendRequests(),
-                friendsService.getOutgoingFriendRequests(),
-            ]);
+            if (selectedList === 'friends')
+            {
+                const [loadedFriends, loadedIncomingRequests, loadedOutgoingRequests] = await Promise.all([
+                    friendsService.getMyFriends(),
+                    friendsService.getIncomingFriendRequests(),
+                    friendsService.getOutgoingFriendRequests(),
+                ]);
 
-            const currentUserId = authStore.getCurrentUserId();
-            friends = loadedFriends;
-            onlineUsers = loadedOnlineUsers.filter((user) => user.id !== currentUserId); // mich rausfiltern
-            incomingFriendRequests = loadedIncomingRequests;
-            outgoingFriendRequests = loadedOutgoingRequests;
+                friends = loadedFriends;
+                onlineUsers = [];
+                incomingFriendRequests = loadedIncomingRequests;
+                outgoingFriendRequests = loadedOutgoingRequests;
+            }
+            else
+            {
+                const currentUserId = authStore.getCurrentUserId();
+                const [loadedOnlineUsers, loadedIncomingRequests, loadedOutgoingRequests] = await Promise.all([
+                    friendsService.getOnlineUsers(),
+                    friendsService.getIncomingFriendRequests(),
+                    friendsService.getOutgoingFriendRequests(),
+                ]);
+
+                friends = [];
+                onlineUsers = loadedOnlineUsers.filter((user) => user.id !== currentUserId); // mich rausfiltern
+                incomingFriendRequests = loadedIncomingRequests;
+                outgoingFriendRequests = loadedOutgoingRequests;
+            }
         }
         catch (error)
         {
