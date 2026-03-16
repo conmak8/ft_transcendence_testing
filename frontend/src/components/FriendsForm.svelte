@@ -2,6 +2,9 @@
 
     import { onMount } from 'svelte';
     import Button from './Button.svelte';
+    import UserIcon from './UserIcon.svelte';
+    import BellIcon from './BellIcon.svelte';
+    import HourglassIcon from './HourglassIcon.svelte';
     import {
         friendsService,
         type IncomingFriendRequest,
@@ -174,11 +177,7 @@
                     onclick={toggleRequestsView}
                     aria-label="Toggle friend requests"
                 >
-                    <svg viewBox="0 0 24 24" aria-hidden="true">
-                        <path
-                            d="M12 2a6 6 0 0 0-6 6v3.6L4.3 14a1 1 0 0 0 .7 1.7h14a1 1 0 0 0 .7-1.7L18 11.6V8a6 6 0 0 0-6-6Zm0 20a3 3 0 0 0 2.8-2h-5.6A3 3 0 0 0 12 22Z" />
-                            <!-- vektorenbild einer kleinen Glocke -->
-                    </svg>
+                    <BellIcon />
                 </button>
             </div>
 
@@ -196,11 +195,7 @@
                             <span class="user-name">{request.userFrom.username}</span>
                             <div class="actions">
                                 <button type="button" class="profile-btn" aria-label={`Open profile of ${request.userFrom.username}`}>
-                                    <svg viewBox="0 0 24 24" aria-hidden="true">
-                                        <path
-                                            d="M12 12c2.76 0 5-2.24 5-5s-2.24-5-5-5-5 2.24-5 5 2.24 5 5 5Zm0 2c-4.42 0-8 3.58-8 8h16c0-4.42-3.58-8-8-8Z" />
-                                            <!-- profilbild vektorenbild -->
-                                    </svg>
+                                    <UserIcon />
                                 </button>
                                 <button
                                     type="button"
@@ -220,11 +215,7 @@
                                 <span class="user-name">{user.username}</span>
                                 <div class="actions">
                                     <button type="button" class="profile-btn" aria-label={`Open profile of ${user.username}`}>
-                                        <svg viewBox="0 0 24 24" aria-hidden="true">
-                                            <path
-                                                d="M12 12c2.76 0 5-2.24 5-5s-2.24-5-5-5-5 2.24-5 5 2.24 5 5 5Zm0 2c-4.42 0-8 3.58-8 8h16c0-4.42-3.58-8-8-8Z"
-                                            />
-                                        </svg>
+                                        <UserIcon />
                                     </button>
                                     <button
                                         type="button"
@@ -243,11 +234,7 @@
                                 <span class="user-name">{user.username}</span>
                                 <div class="actions">
                                     <button type="button" class="profile-btn" aria-label={`Open profile of ${user.username}`}>
-                                        <svg viewBox="0 0 24 24" aria-hidden="true">
-                                            <path
-                                                d="M12 12c2.76 0 5-2.24 5-5s-2.24-5-5-5-5 2.24-5 5 2.24 5 5 5Zm0 2c-4.42 0-8 3.58-8 8h16c0-4.42-3.58-8-8-8Z"
-                                            />
-                                        </svg>
+                                        <UserIcon />
                                     </button>
                                     <button
                                         type="button"
@@ -266,9 +253,7 @@
                                         {#if hasIncomingRequestFrom(user.id)}
                                             ✓
                                         {:else if hasOutgoingRequestTo(user.id)}
-                                            <svg class="hourglass-icon" viewBox="0 0 24 24" aria-hidden="true">
-                                                <path d="M7 3h10v2h-1v4.3l-2.8 2.7 2.8 2.7V19h1v2H7v-2h1v-4.3l2.8-2.7L8 9.3V5H7V3Zm3 2v3.5L12 10.5l2-2V5h-4Zm0 14h4v-3.5l-2-2-2 2V19Z" />
-                                            </svg>
+                                            <HourglassIcon />
                                         {:else}
                                             +
                                         {/if}
@@ -444,13 +429,6 @@
         justify-content: center;
     }
 
-    .bell-btn svg
-    {
-        width: 18px;
-        height: 18px;
-        fill: currentColor;
-    }
-
     .bell-btn.has-requests
     {
         color: #ff4444;
@@ -464,13 +442,6 @@
         align-items: center;
         justify-content: center;
         padding: 0;
-    }
-
-    .profile-btn svg
-    {
-        width: 16px;
-        height: 16px;
-        fill: #fff;
     }
 
     .add-btn
@@ -490,11 +461,4 @@
         opacity: 1;
     }
 
-    .hourglass-icon
-    {
-        width: 13px;
-        height: 13px;
-        fill: currentColor;
-        display: block;
-    }
 </style>
