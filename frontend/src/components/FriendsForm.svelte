@@ -76,7 +76,7 @@
         }
     }
 
-    async function addFriend(userId: string)
+    async function handleFriendRequest(userId: string)
     {
         try
         {
@@ -85,7 +85,7 @@
         }
         catch (error)
         {
-            errorMessage = error instanceof Error ? error.message : 'Could not send friend request';
+            errorMessage = error instanceof Error ? error.message : 'Error regarding friend request';
         }
     }
 
@@ -97,19 +97,6 @@
     function hasOutgoingRequestTo(userId: string): boolean
     {
         return outgoingFriendRequests.some((request) => request.userTo.id === userId);
-    }
-
-    async function acceptFriendRequest(userId: string)
-    {
-        try
-        {
-            await friendsService.sendFriendRequest(userId);
-            await loadUsers();
-        }
-        catch (error)
-        {
-            errorMessage = error instanceof Error ? error.message : 'Could not accept friend request';
-        }
     }
 
     async function removeFriend(userId: string)
@@ -201,7 +188,7 @@
                                 <button
                                     type="button"
                                     class="add-btn"
-                                    onclick={() => acceptFriendRequest(request.userFrom.id)}
+                                    onclick={() => handleFriendRequest(request.userFrom.id)}
                                     aria-label={`Accept friend request from ${request.userFrom.username}`}
                                 >
                                     ✓
@@ -229,9 +216,7 @@
                                         type="button"
                                         class="add-btn"
                                         class:pending={hasOutgoingRequestTo(user.id) && !hasIncomingRequestFrom(user.id)}
-                                        onclick={() => hasIncomingRequestFrom(user.id)
-                                            ? acceptFriendRequest(user.id)
-                                            : addFriend(user.id)}
+                                        onclick={() => handleFriendRequest(user.id)}
                                         disabled={friends.some((entry) => entry.id === user.id) || hasOutgoingRequestTo(user.id)}
                                         aria-label={hasIncomingRequestFrom(user.id)
                                             ? `Accept friend request from ${user.username}`
