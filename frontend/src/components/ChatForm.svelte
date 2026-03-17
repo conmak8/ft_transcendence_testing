@@ -20,7 +20,7 @@
     }
 
     function handleSend() {
-        if (!inRoom || !chatInput.trim()) return;
+        if (!chatInput.trim()) return;
         ws.sendChat(chatInput.trim());
         chatInput = '';
     }
@@ -63,15 +63,14 @@
                 {/if}
             </div>
 
-            <div class="chat-input" class:disabled={!inRoom}>
+            <div class="chat-input">
                 <input
                     type="text"
-                    placeholder={inRoom ? 'Type a message...' : 'Join a room to chat'}
+                    placeholder={inRoom ? 'Type a message...' : 'Global chat...'}
                     bind:value={chatInput}
                     onkeydown={handleKeydown}
-                    disabled={!inRoom}
                 />
-                <button onclick={handleSend} disabled={!inRoom || !chatInput.trim()}>
+                <button onclick={handleSend} disabled={!chatInput.trim()}>
                     Send
                 </button>
             </div>
@@ -185,14 +184,7 @@
         font-size: 0.88rem;
     }
 
-    .chat-input.disabled input {
-        background: #1a1a1a;
-        border-color: #2a2a2a;
-        color: #555;
-        cursor: not-allowed;
-    }
-
-    .chat-input button {
+.chat-input button {
         background: #0AEB00;
         color: #000;
         border: none;
