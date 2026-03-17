@@ -121,7 +121,7 @@ async function extractErrorMessage(response: Response): Promise<string>
 }
 
 
-function buildAuthHeaders(): HeadersInit
+export function buildAuthHeaders(): HeadersInit
 {
   // authStore writes the current session to sessionStorage under "auth_session".
   const rawSession = sessionStorage.getItem(SESSION_STORAGE_KEY);
