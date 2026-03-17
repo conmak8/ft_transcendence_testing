@@ -2,6 +2,7 @@
 
     import { onMount } from 'svelte';
     import Button from './Button.svelte';
+    import FriendListItem from './FriendListItem.svelte';
     import UserIcon from './UserIcon.svelte';
     import BellIcon from './BellIcon.svelte';
     import HourglassIcon from './HourglassIcon.svelte';
@@ -211,22 +212,10 @@
                 {:else}
                     {#if selectedList === 'friends'}
                         {#each friends as user}
-                            <li>
-                                <span class="user-name">{user.username}</span>
-                                <div class="actions">
-                                    <button type="button" class="profile-btn" aria-label={`Open profile of ${user.username}`}>
-                                        <UserIcon />
-                                    </button>
-                                    <button
-                                        type="button"
-                                        class="remove-btn"
-                                        onclick={() => removeFriend(user.id)}
-                                        aria-label={`Remove ${user.username} from friends`}
-                                    >
-                                        -
-                                    </button>
-                                </div>
-                            </li>
+                            <FriendListItem
+                                username={user.username}
+                                onRemove={() => removeFriend(user.id)}
+                            />
                         {/each}
                     {:else}
                         {#each onlineUsers as user}
@@ -387,7 +376,6 @@
     }
 
     .profile-btn,
-    .remove-btn,
     .add-btn
     {
         border: 1px solid rgba(10, 235, 0, 0.4);
@@ -396,23 +384,6 @@
         cursor: pointer;
         font-size: 0.78rem;
         padding: 4px 8px;
-    }
-
-    .remove-btn
-    {
-        min-width: 28px;
-        font-weight: bold;
-        font-size: 0;
-        position: relative;
-    }
-
-    .remove-btn::before
-    {
-        content: '';
-        display: block;
-        width: 14px;
-        height: 2px;
-        background: currentColor;
     }
 
     .bell-btn
