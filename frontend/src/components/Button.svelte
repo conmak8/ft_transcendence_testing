@@ -10,7 +10,10 @@
             | 'reset'
             | 'expand-trigger-left'
             | 'expand-trigger-right'
-            | 'expand-trigger-bottom';
+            | 'expand-trigger-bottom'
+            | 'join'
+            | 'create'
+            | 'cancel';
         onclick?: (event: MouseEvent) => void;
         ariaExpanded?: boolean;
         ariaLabel?: string;
@@ -45,7 +48,9 @@
     class:expand-trigger-left={variant === 'expand-trigger-left'}
     class:expand-trigger-right={variant === 'expand-trigger-right'}
     class:expand-trigger-bottom={variant === 'expand-trigger-bottom'}
-    {...rest}
+    class:join={variant === 'join'}
+    class:create={variant === 'create'}
+    class:cancel={variant === 'cancel'}
 >
     {@render children()}
 </button>
@@ -71,6 +76,7 @@
 
     button:disabled
     {
+        /* background: #ffffff38; */
         opacity: 0.6;
         cursor: not-allowed;
     }
@@ -130,5 +136,44 @@
         height: 40px;
         padding: 0;
         letter-spacing: 1px;
+    }
+
+    button.join
+    {
+        width: 50px;
+        height: 40px;
+        float: right;
+        font-size: 14px;
+        padding: 0;
+        /* display: flex; */
+        align-items: center;
+        justify-content: center;
+    }
+
+    button.create
+    {
+        width: 40px;
+        height: 40px;
+        /* float: right; */
+        font-size: 14px;
+        padding: 2px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border: 1px solid #B13BCC;
+        background: none;
+    }
+
+    button.cancel
+    {
+        background: transparent;
+        color: #ff4444;
+        border: 1px solid #ff4444;
+    }
+
+     button.cancel:hover
+    {
+        background: #ff4444;
+        color: #fff;
     }
 </style>

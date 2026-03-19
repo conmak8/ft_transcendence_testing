@@ -1,335 +1,234 @@
 <script lang="ts">
-  import { onMount } from 'svelte';
-  import Button from './Button.svelte';
-  import GameRoom from './GameRoom.svelte';
-  import { ws } from '../stores/websocket.svelte.js';
-  import { authStore } from '../stores/authStore';
+    // import { onMount } from 'svelte';
+    // import { getAllRooms } from '../services/roomService.svelte.ts';
+    import { roomState, send } from '../stores/roomStore.svelte';
+    import { connect } from '../stores/roomStore.svelte';
+    import { authStore } from '../stores/authStore';
 
-  let isExpanded = $state(false);
-  let rooms: any[] = $state([]);
-  let loadingRooms = $state(false);
-  let showCreateForm = $state(false);
-  let newRoomName = $state('');
-  let newRoomPlayers = $state(2);
+    
+    import RoomCard from './Roomcard.svelte';
+    import Button from './Button.svelte';
+    import CreateRoomForm from './CreateRoomForm.svelte';
 
-  function togglePanel() {
-    isExpanded = !isExpanded;
-    if (isExpanded && rooms.length === 0) {
-      fetchRooms();
+
+    let isExpanded = $state(true);
+    let showCreateModal = $state(false);
+    // let allRooms = $state<Room[]>([]);
+
+
+    // 1. Add Filter States
+    let searchQuery = $state('');
+    let sortType = $state<'players' | 'fee'>('players');
+
+    // 2. Create a derived filtered list
+    let filteredRooms = $derived(
+        roomState.rooms
+            .filter(room => room.name.toLowerCase().includes(searchQuery.toLowerCase()))
+            .sort((a, b) => {
+                if (sortType === 'players') return b.currentPlayers - a.currentPlayers;
+                if (sortType === 'fee') return b.entryFee - a.entryFee;
+                return 0;
+            })
+    );
+
+    // function openCreateModal()
+    // {
+    //     if (!roomState.isConnected && $authStore.sessionToken)
+    //     {
+    //         connect($authStore.sessionToken);
+    //     }
+    //     showCreateModal = true;
+    // }
+
+    function handleJoin(roomId: string)
+    {
+        send('room:join', { room_id: roomId });
     }
-  }
 
-  async function fetchRooms() {
-    loadingRooms = true;
-    try {
-      const res = await fetch('/api/rooms');
-      rooms = await res.json();
-    } catch (err) {
-      console.error('Failed to fetch rooms:', err);
-    } finally {
-      loadingRooms = false;
+    function handleCreate(roomData: { name: string; entryFee: number; maxPlayers: number })
+    {
+        showCreateModal = !showCreateModal;
+        send('room:create', roomData);
     }
-  }
 
-  function handleCreate() {
-    if (newRoomName.trim()) {
-      ws.createRoom(newRoomName.trim(), newRoomPlayers);
-      newRoomName = '';
-      newRoomPlayers = 2;
-      showCreateForm = false;
+    function togglePanel()
+    {
+        isExpanded = !isExpanded;
     }
-  }
 
-  function handleLeaveRoom() {
-    ws.leaveRoom();
-    fetchRooms();
-  }
-
-  const currentUserId = $derived($authStore.userId);
 </script>
 
-<!-- GameRoom overlay when in a room -->
-{#if ws.currentRoom}
-  <GameRoom
-    room={ws.currentRoom}
-    players={ws.players}
-    messages={ws.messages}
-    gameActive={ws.gameActive}
-    gameState={ws.gameState}
-    gameEndResult={ws.gameEndResult}
-    {currentUserId}
-    onleave={handleLeaveRoom}
-    onready={() => ws.toggleReady()}
-    onchat={(content: string) => ws.sendChat(content)}
-    ongameInput={(dir: string) => ws.sendGameInput(dir)}
-    ondismissResults={() => { ws.gameEndResult = null; }}
-  />
-{/if}
+
 
 <aside class="rooms-drawer" class:expanded={isExpanded}>
-  <Button
-    type="button"
-    variant="expand-trigger-right"
-    onclick={togglePanel}
-    ariaExpanded={isExpanded}
-    ariaLabel={isExpanded ? 'Close rooms panel' : 'Open rooms panel'}
-  >
-    ROOMS
-  </Button>
+    <Button
+        type="button"
+        variant="expand-trigger-right"
+        onclick={togglePanel}
+        ariaExpanded={isExpanded}
+        ariaLabel={isExpanded ? 'Close rooms panel' : 'Open rooms panel'}
+    >
+        ROOMS
+    </Button>
+    
+    {#if showCreateModal}
+    <CreateRoomForm 
+            onClose={() => showCreateModal = false}
+            onCreate={handleCreate} 
+        />
+    {/if}
 
-  {#if isExpanded}
+    {#if isExpanded}
     <div class="rooms-panel">
-      <div class="panel-header">
-        <h2>Rooms</h2>
-        <div class="header-actions">
-          <button class="create-btn" onclick={() => showCreateForm = !showCreateForm}>
-            {showCreateForm ? 'Cancel' : '+ New'}
-          </button>
-          <button class="refresh-btn" onclick={fetchRooms}>↺</button>
+        <div class="rooms-header">
+            <h2>Rooms : <span class="room-count"> {roomState.rooms.length}</span></h2>
+                <Button variant="create" type="button" onclick={() => showCreateModal = true}>+</Button>
+         </div>
+        <div class="filter-toolbar">
+            <input 
+                type="text" 
+                placeholder="Search..." 
+                bind:value={searchQuery}
+                class="search-input"
+            />
+            
+            <select bind:value={sortType} class="sort-select">
+                <option value="players">Players</option>
+                <option value="fee">Entry Fee</option>
+            </select>
         </div>
-      </div>
-
-      {#if showCreateForm}
-        <div class="create-form">
-          <input
-            type="text"
-            placeholder="Room name..."
-            bind:value={newRoomName}
-            maxlength="50"
-          />
-          <select bind:value={newRoomPlayers}>
-            <option value={2}>2 Players</option>
-            <option value={3}>3 Players</option>
-            <option value={4}>4 Players</option>
-          </select>
-          <button class="create-submit" onclick={handleCreate} disabled={!newRoomName.trim()}>
-            Create
-          </button>
-        </div>
-      {/if}
-
-      <div class="rooms-list">
-        {#if loadingRooms}
-          <div class="status-msg">Loading rooms...</div>
-        {:else if rooms.length === 0}
-          <div class="status-msg">No rooms available</div>
+        {#each filteredRooms as room (room.id)}
+            <!-- <RoomCard {room}></RoomCard> -->
+             <RoomCard {room} onJoin={() => handleJoin(room.id)} />
         {:else}
-          {#each rooms as room}
-            <div class="room-card" class:in-game={room.status === 'IN_GAME'}>
-              <div class="room-info">
-                <span class="room-name">{room.name}</span>
-                <span class="room-meta">
-                  {room.player_count}/{room.max_players}
-                  <span class="status-badge" class:waiting={room.status === 'WAITING'}>
-                    {room.status}
-                  </span>
-                </span>
-              </div>
-              <button
-                class="join-btn"
-                onclick={() => ws.joinRoom(room.id)}
-                disabled={room.status === 'IN_GAME' || room.player_count >= room.max_players}
-              >
-                {#if room.status === 'IN_GAME'}In Game
-                {:else if room.player_count >= room.max_players}Full
-                {:else}Join{/if}
-              </button>
-            </div>
-          {/each}
-        {/if}
-      </div>
+            <p class="no-rooms">No rooms found...</p>
+        {/each}
     </div>
-  {/if}
+    {/if}
 </aside>
 
 <style>
-  .rooms-drawer {
-    position: fixed;
-    right: 0;
-    top: 100px;
-    bottom: 60px;
-    width: 50px;
-    overflow: hidden;
-    transition: width 0.3s ease;
-  }
 
-  .rooms-drawer.expanded {
-    width: max(320px, 33.333vw);
-  }
+    .room-count
+    {
+        /* background: #0ceb00; */
+        /* border: 0.4px solid #B13BCC; */
+        color: #fff;
+        /* color: #0ceb00; */
+        padding: 2px 10px;
+        font-size: 1.4em;
+        /* margin-left: 8px; */
+        font-weight: bold;
+    }
+    .rooms-drawer
+    {
+        position: fixed;
+        right: 0;
+        top: 100px;
+        bottom: 60px;
+        width: 50px;
+        overflow: hidden;
+        transition: width 0.3s ease;
+    }
 
-  .rooms-panel {
-    margin-right: 55px;
-    height: 100%;
-    box-sizing: border-box;
-    border: 1px solid rgba(10, 235, 0, 0.1);
-    background: rgba(15, 19, 20, 0.6);
-    backdrop-filter: blur(10px);
-    padding: 24px;
-    display: flex;
-    flex-direction: column;
-    overflow: hidden;
-  }
+    .rooms-drawer.expanded
+    {
+        width: max(320px, calc(33.333vw/1.5));
+    }
 
-  .rooms-panel:hover {
-    border-color: #0AEB00;
-    background: rgba(10, 235, 0, 0.02);
-  }
+    .rooms-panel
+    {
+        margin-right: 55px;
+        height: 100%;
+        box-sizing: border-box;
+        border: 1px solid rgba(10, 235, 0, 0.1);
+        background: rgba(15, 19, 20, 0.6);
+        backdrop-filter: blur(10px);
+        padding: 36px;
+        overflow-y: auto;
+    }
 
-  .panel-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 14px;
-  }
+    .rooms-panel:hover
+    {
+        border-color: #0AEB00;
+        background: rgba(10, 235, 0, 0.02);
+    }
 
-  h2 {
-    margin: 0;
-    color: #0AEB00;
-    text-transform: uppercase;
-    letter-spacing: 1px;
-  }
+    .rooms-header
+    {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        margin-bottom: 14px;
+    }
 
-  .header-actions {
-    display: flex;
-    gap: 0.5rem;
-  }
+    h2
+    {
+        /* margin: 0 0 14px; */
+        color: #0AEB00;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+        text-align: left;
+    }
 
-  .create-btn {
-    background: #B13BCC;
-    color: #fff;
-    border: none;
-    padding: 0.3rem 0.6rem;
-    cursor: pointer;
-    border-radius: 4px;
-    font-size: 0.85rem;
-  }
 
-  .refresh-btn {
-    background: #333;
-    color: #0AEB00;
-    border: 1px solid #0AEB00;
-    padding: 0.3rem 0.6rem;
-    cursor: pointer;
-    border-radius: 4px;
-  }
+    /* Custom scrollbar maybe not work for Firefox */
+    .rooms-panel::-webkit-scrollbar
+    {
+        width: 12px;
+    }
 
-  .create-form {
-    display: flex;
-    flex-direction: column;
-    gap: 0.5rem;
-    margin-bottom: 1rem;
-    padding: 0.75rem;
-    background: #222;
-    border: 1px solid #B13BCC;
-    border-radius: 6px;
-  }
+    .rooms-panel::-webkit-scrollbar-thumb
+    {
+        background: #B13BCC;
+    }
 
-  .create-form input,
-  .create-form select {
-    padding: 0.4rem;
-    background: #333;
-    border: 1px solid #444;
-    color: #fff;
-    border-radius: 4px;
-    font-size: 0.9rem;
-  }
+    .rooms-panel::-webkit-scrollbar-track
+    {
+        background: rgba(30, 157, 189, 0.3);
+        /* background: rgba(0, 0, 0, 0.3); */
+    }
 
-  .create-submit {
-    background: #0AEB00;
-    color: #000;
-    border: none;
-    padding: 0.4rem;
-    font-weight: bold;
-    cursor: pointer;
-    border-radius: 4px;
-  }
 
-  .create-submit:disabled {
-    background: #333;
-    color: #666;
-    cursor: not-allowed;
-  }
 
-  .rooms-list {
-    flex: 1;
-    overflow-y: auto;
-    display: flex;
-    flex-direction: column;
-    gap: 0.5rem;
-  }
+    .filter-toolbar
+    {
+        display: flex;
+        gap: 8px;
+        margin-bottom: 20px;
+    }
 
-  .status-msg {
-    text-align: center;
-    padding: 1.5rem;
-    color: #666;
-  }
+    .search-input, .sort-select
+    {
+        background: rgba(0, 0, 0, 0.4);
+        border: 1px solid rgba(10, 235, 0, 0.3);
+        color: #0AEB00;
+        padding: 6px 10px;
+        outline: none;
+    }
 
-  .room-card {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    background: #222;
-    border: 1px solid #333;
-    padding: 0.6rem 0.75rem;
-    border-radius: 6px;
-  }
+    .search-input
+    {
+        flex: 1;
+    }
 
-  .room-card.in-game {
-    opacity: 0.6;
-    border-color: #B13BCC;
-  }
+    .search-input:focus, .sort-select:focus
+    {
+        border-color: #0AEB00;
+        /* box-shadow: 0 0 5px rgba(10, 235, 0, 0.5); */
+    }
 
-  .room-info {
-    display: flex;
-    flex-direction: column;
-    gap: 0.2rem;
-  }
+    .sort-select option
+    {
+        background: #0F1314;
+        color: #0AEB00;
+    }
 
-  .room-name {
-    font-weight: bold;
-    color: #fff;
-    font-size: 0.9rem;
-  }
-
-  .room-meta {
-    font-size: 0.8rem;
-    color: #888;
-    display: flex;
-    gap: 0.5rem;
-    align-items: center;
-  }
-
-  .status-badge {
-    padding: 0.1rem 0.4rem;
-    border-radius: 3px;
-    font-size: 0.75rem;
-    background: #B13BCC;
-  }
-
-  .status-badge.waiting {
-    background: #0AEB00;
-    color: #000;
-  }
-
-  .join-btn {
-    background: #0AEB00;
-    color: #000;
-    border: none;
-    padding: 0.4rem 0.8rem;
-    font-weight: bold;
-    cursor: pointer;
-    border-radius: 4px;
-    font-size: 0.85rem;
-    white-space: nowrap;
-  }
-
-  .join-btn:hover:not(:disabled) {
-    background: #09c700;
-  }
-
-  .join-btn:disabled {
-    background: #333;
-    color: #666;
-    cursor: not-allowed;
-  }
+    .no-rooms
+    {
+        color: #666;
+        font-style: italic;
+        text-align: center;
+        margin-top: 20px;
+    }
 </style>

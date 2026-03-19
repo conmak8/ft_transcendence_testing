@@ -6,5 +6,3 @@ export const buildApiPath = (path: string): string => {
         .replace(/\/api\/v1$/, '');
     return `${backendOrigin}/api/v1${path}`;
 }
-
-//    return `/api/v1${path}`;

@@ -113,7 +113,7 @@
                 <p class="error-message">{passwordError}</p>
                 {/if}
             </div>
-             <div class="input-group">
+             <div class="input-group">;
                 <p>CONFIRM PASSWORD</p>
                 <input
                 type="password"
