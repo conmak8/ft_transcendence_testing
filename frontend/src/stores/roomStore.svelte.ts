@@ -1,14 +1,19 @@
 // src/stores/roomStore.ts
 import { navigateTo } from './router';
 
-export interface Room
-{
+export interface Room {
     id: string;
     name: string;
-    currentPlayers: number;
+    creator_id?: string | null;
     maxPlayers: number;
-    entryFee: number;
-};
+    currentPlayers?: number;
+    buy_in_amount?: number;
+    time_limit_seconds?: number | null;
+    win_condition?: 'BEST_OF' | 'SCORE' | 'TIME';
+    status?: 'WAITING' | 'IN_GAME' | 'FINISHED';
+    is_permanent?: boolean;
+    created_at?: string;
+}
 
 // Define the interface for your state
 export interface RoomState
@@ -19,18 +24,17 @@ export interface RoomState
 }
 
 //new one
-const initialRoomState: RoomState = {
-    rooms: [],
-    isConnected: false,
-    currentRoomId: null
-};
+// const initialRoomState: RoomState = {
+//     rooms: [],
+//     isConnected: false,
+//     currentRoomId: null
+// };
 
 
 // Use the interface as a type for $state
 export const roomState = $state<RoomState>({
     rooms: [],
     isConnected: false,
-    // isAuthenticated: false,
     currentRoomId: null
 });
 

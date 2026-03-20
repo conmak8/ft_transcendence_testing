@@ -80,15 +80,15 @@ export async function handleRoomCreate(
     // 3. Check if user has enough coins for buy-in
     if (buy_in_amount > 0) {
       const userResult = await db.query(
-        'SELECT coins FROM users WHERE id = $1',
+        'SELECT balance FROM users WHERE id = $1',
         [userId]
       );
       if (
         userResult.rows.length === 0 ||
-        userResult.rows[0].coins < buy_in_amount
+        userResult.rows[0].balance < buy_in_amount
       ) {
         connectionManager.send(userId, 'room:error', {
-          error: 'Not enough coins for buy-in',
+          error: 'Not enough balance for buy-in',
         });
         return;
       }

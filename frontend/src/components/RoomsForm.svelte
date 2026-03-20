@@ -2,8 +2,8 @@
     // import { onMount } from 'svelte';
     // import { getAllRooms } from '../services/roomService.svelte.ts';
     import { roomState, send } from '../stores/roomStore.svelte';
-    import { connect } from '../stores/roomStore.svelte';
-    import { authStore } from '../stores/authStore';
+    // import { connect } from '../stores/roomStore.svelte';
+    // import { authStore } from '../stores/authStore';
 
     
     import RoomCard from './Roomcard.svelte';
@@ -26,7 +26,7 @@
             .filter(room => room.name.toLowerCase().includes(searchQuery.toLowerCase()))
             .sort((a, b) => {
                 if (sortType === 'players') return b.currentPlayers - a.currentPlayers;
-                if (sortType === 'fee') return b.entryFee - a.entryFee;
+                if (sortType === 'fee') return b.buy_in_amount - a.buy_in_amount;
                 return 0;
             })
     );
@@ -36,10 +36,26 @@
         send('room:join', { room_id: Number(roomId) });
     }
 
-    function handleCreate(roomData: { name: string; entryFee: number; maxPlayers: number })
-    {
+    function handleCreate(roomData: { name: string; buy_in_amount: number; maxPlayers: number }) {
         showCreateModal = !showCreateModal;
-        send('room:create', roomData);
+        // Prepare the payload to match backend Room interface
+        const backendRoomData = {
+            name: roomData.name,
+            maxPlayers: roomData.maxPlayers,
+            buy_in_amount: roomData.buy_in_amount,
+            time_limit_seconds: null, // or set from form if available
+            win_condition: 'SCORE', // default, or set from form
+            status: 'WAITING', // default, or set from form
+            is_permanent: false // default, or set from form
+            // name: "Test Room",
+            // max_players: 4,
+            // buy_in_amount: 10,
+            // time_limit_seconds: 60,
+            // win_condition: "SCORE",
+            // status: "WAITING",
+            // is_permanent: false
+        };
+        send('room:create', backendRoomData);
     }
 
     function togglePanel()
