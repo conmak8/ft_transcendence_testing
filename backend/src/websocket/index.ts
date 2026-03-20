@@ -102,9 +102,9 @@ export async function setupWebSocket(
             }
 
             // Update user online status in DB
-            await db.query('UPDATE users SET is_online = true WHERE id = $1', [
-              user.id,
-            ]);
+            // await db.query('UPDATE users SET is_online = true WHERE id = $1', [
+            //   user.id,
+            // ]);
 
             socket.send(
               JSON.stringify({

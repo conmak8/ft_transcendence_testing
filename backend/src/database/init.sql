@@ -41,6 +41,17 @@ CREATE TABLE IF NOT EXISTS friends (
 	PRIMARY KEY (user1_id, user2_id)
 );
 
+CREATE TABLE room_players (
+    room_id INTEGER NOT NULL,
+    user_id INTEGER NOT NULL,
+    player_slot INTEGER NOT NULL,
+    is_ready BOOLEAN NOT NULL DEFAULT FALSE,
+    joined_at TIMESTAMP NOT NULL DEFAULT NOW(),
+    PRIMARY KEY (room_id, user_id),
+    FOREIGN KEY (room_id) REFERENCES rooms(id) ON DELETE CASCADE,
+    FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
+);
+
 -- DUMMY DATA
 INSERT INTO users
 (id, username, password, email, balance)

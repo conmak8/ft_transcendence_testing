@@ -10,12 +10,6 @@ export interface Room
     entryFee: number;
 };
 
-// export const roomState = $state({
-//     rooms: [],
-//     isConnected: false,
-//     currentRoomId: null as string | null
-// });
-
 // Define the interface for your state
 export interface RoomState
 {
@@ -31,14 +25,12 @@ const initialRoomState: RoomState = {
     currentRoomId: null
 };
 
-// Export the state directly
-// export const roomState = $state<RoomState>(initialRoomState);
-
 
 // Use the interface as a type for $state
 export const roomState = $state<RoomState>({
     rooms: [],
     isConnected: false,
+    // isAuthenticated: false,
     currentRoomId: null
 });
 
@@ -51,9 +43,9 @@ export function connect(token: string)
     socket = new WebSocket('ws://localhost:8080/ws');
 
     socket.onopen = () => {
-        console.log("WebSocket connected");
         roomState.isConnected = true;
         send('auth', { token });
+        console.log("%c[WebSocket] Connected to ws://localhost:8080/ws", "color: green; font-weight: bold;");
     };
 
     socket.onmessage = (event) => {
@@ -61,47 +53,56 @@ export function connect(token: string)
         const { event: type, data } = msg;
 
         switch (type) {
-            case 'room:list':
-                roomState.rooms = data;
+             default:
+                console.warn("Unhandled WebSocket message type:", type, "Data:", data);
                 break;
+
+            case 'auth:success':
+                console.log("✅ Authenticated");
+                console.log(roomState.isConnected);
+                break;
+
+            // case 'room:list':
+            //     roomState.rooms = data;
+            //     break;
                 
-            case 'room:create':
+            case 'room:created':
                 // Add the new room to the list
-                roomState.rooms = [data, ...roomState.rooms];
+                roomState.rooms = [data.room, ...roomState.rooms];
                 break;
 
-            case 'room:update':
-                // Update players count or status in real-time
-                const idx = roomState.rooms.findIndex(r => r.id === data.id);
-                if (idx !== -1) roomState.rooms[idx] = data;
-                break;
+            // case 'room:update':
+            //     // Update players count or status in real-time
+            //     const idx = roomState.rooms.findIndex(r => r.id === data.id);
+            //     if (idx !== -1) roomState.rooms[idx] = data;
+            //     break;
 
-            case 'room:joined':
-                // SERVER CONFIRMED JOIN: Now we navigate
-                roomState.currentRoomId = data.room_id;
-                navigateTo('/game');
-                break;
+            // case 'room:joined':
+            //     // SERVER CONFIRMED JOIN: Now we navigate
+            //     roomState.currentRoomId = data.room.id;
+            //     navigateTo('/game');
+            //     break;
 
             case 'error':
                 console.error("Server error event:", data);
-                // alert(`Server Error: ${data.message}`);
-                    alert(`Server Error: ${data?.message || "Unknown error"}`);
                 break;
         }
     };
 
     socket.onclose = () => {
         console.log("WebSocket closed");
-        roomState.isConnected = false;
-        socket = null;
+            roomState.isConnected = false;
+            roomState.rooms = [];
+            roomState.currentRoomId = null;
+            socket = null;
     };
 }
 
 export function send(event: string, data: any)
 {
-    //  console.log("Sending to WS:", { event, data });
+     console.log("Sending to WS:", { event, data });
     if (socket?.readyState === WebSocket.OPEN) {
-        socket.send(JSON.stringify({ event, data }));
+        socket.send(JSON.stringify({event,data}));
     } 
     else
     {

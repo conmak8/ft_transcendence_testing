@@ -31,18 +31,9 @@
             })
     );
 
-    // function openCreateModal()
-    // {
-    //     if (!roomState.isConnected && $authStore.sessionToken)
-    //     {
-    //         connect($authStore.sessionToken);
-    //     }
-    //     showCreateModal = true;
-    // }
-
     function handleJoin(roomId: string)
     {
-        send('room:join', { room_id: roomId });
+        send('room:join', { room_id: Number(roomId) });
     }
 
     function handleCreate(roomData: { name: string; entryFee: number; maxPlayers: number })
@@ -91,7 +82,6 @@
                 bind:value={searchQuery}
                 class="search-input"
             />
-            
             <select bind:value={sortType} class="sort-select">
                 <option value="players">Players</option>
                 <option value="fee">Entry Fee</option>

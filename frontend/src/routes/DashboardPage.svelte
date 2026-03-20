@@ -16,6 +16,7 @@
     if (session.sessionToken && !roomState.isConnected)
     {
       connect(session.sessionToken);
+      console.log("Connecting with token:", session.sessionToken);
     }
   });
 </script>
@@ -23,9 +24,11 @@
 <main>
   <div class="dashboard-layout">
 
-    {#if !roomState.isConnected}
-      <div class="connection-overlay">Connecting to server...</div>
-    {/if}
+    <!-- {#if !roomState.isAuthenticated}
+      <div class="connection-overlay">Connecting to server...
+        {!roomState.isConnected ? 'Connecting...' : 'Authenticating...'}
+      </div>
+    {/if} -->
 
     <ChatForm />
     <FriendsForm />
