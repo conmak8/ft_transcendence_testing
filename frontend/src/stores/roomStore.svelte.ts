@@ -73,6 +73,7 @@ export function connect(token: string)
             case 'room:created':
                 // Add the new room to the list
                 roomState.rooms = [data.room, ...roomState.rooms];
+                window.dispatchEvent(new CustomEvent('room:created', { detail: { room: data.room } }));
                 break;
 
             // case 'room:update':

@@ -1,6 +1,8 @@
 <script lang="ts">
 	import Button from './Button.svelte';
-    // import { createRoom } from '../services/roomService.svelte';
+    // import { roomState } from '../stores/roomStore.svelte';
+    import { navigateTo } from '../stores/router';
+    
 	
    let { onClose, onCreate } = $props<{
         onClose: () => void;
@@ -29,14 +31,28 @@
 
         if (entryFeeNum < 1 || entryFeeNum > 500)
             entryFeeError = "Entry Fee 1 - 500";
-        if (maxPlayersNum < 2 || maxPlayersNum > 8)
-            maxPlayersError = "Players 2 - 8";
+        if (maxPlayersNum < 2 || maxPlayersNum > 4)
+            maxPlayersError = "Players 2 - 4";
 
         if (nameError || entryFeeError || maxPlayersError)
             return;
         
-        onCreate({ name, entryFee: entryFeeNum, maxPlayers: maxPlayersNum });
-        onClose();
+       try {
+        // This now waits for the Promise in RoomsForm to resolve with the ID
+        const newRoomId = await onCreate({ 
+            name, 
+            entryFee: Number(entryFee), 
+            maxPlayers: Number(maxPlayers) 
+        });
+
+        if (newRoomId) {
+            onClose();
+            // Redirect to the new room
+            navigateTo(`/room/${newRoomId}`);
+        }
+        } catch (err) {
+            console.error("Failed to create room:", err);
+        }
     }
 
     function clearError(field: 'name' | 'entryFee' | 'maxPlayers')
@@ -72,7 +88,7 @@
             <div class="input-group">
                 <p>Max Players</p>
                 <label>
-                    <input type="number" placeholder ="2 - 8" bind:value={maxPlayers} class:error={maxPlayersError} oninput={()=> clearError('maxPlayers')} required/>
+                    <input type="number" min="2" max="4" placeholder ="2 - 4" bind:value={maxPlayers} class:error={maxPlayersError} oninput={()=> clearError('maxPlayers')} required/>
                 </label>
                 {#if maxPlayersError}
                 <p class="error-message">{maxPlayersError}</p>

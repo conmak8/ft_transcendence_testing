@@ -9,8 +9,8 @@
   import DashboardPage from './routes/DashboardPage.svelte'
   import SignUpPage from './routes/SignUpPage.svelte'
   import SettingPage from './routes/SettingPage.svelte'
-  import GamePage from './routes/GamePage.svelte'
   import WorkPage from './routes/WorkPage.svelte'
+  import RoomPage from './routes/RoomPage.svelte'
 
   authStore.initFromSession()
 </script>
@@ -28,10 +28,10 @@
         <DashboardPage />
       {:else if $currentPath === '/setting'}
         <SettingPage />
-      {:else if $currentPath === '/game'}
-        <GamePage />
       {:else if $currentPath === '/work'}
-        <WorkPage />
+      <WorkPage />
+      {:else if $currentPath.startsWith ('/room/')}
+      <RoomPage roomId={$currentPath.split('/')[2]}/>
       {/if}
   {/key}
 </Layout>

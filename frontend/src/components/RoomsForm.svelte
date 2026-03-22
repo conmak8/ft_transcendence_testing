@@ -36,26 +36,31 @@
         send('room:join', { room_id: Number(roomId) });
     }
 
-    function handleCreate(roomData: { name: string; buy_in_amount: number; maxPlayers: number }) {
+    function handleCreate(roomData: { name: string; entryFee: number; maxPlayers: number }) {
         showCreateModal = !showCreateModal;
-        // Prepare the payload to match backend Room interface
         const backendRoomData = {
             name: roomData.name,
-            maxPlayers: roomData.maxPlayers,
-            buy_in_amount: roomData.buy_in_amount,
-            time_limit_seconds: null, // or set from form if available
-            win_condition: 'SCORE', // default, or set from form
-            status: 'WAITING', // default, or set from form
-            is_permanent: false // default, or set from form
-            // name: "Test Room",
-            // max_players: 4,
-            // buy_in_amount: 10,
-            // time_limit_seconds: 60,
-            // win_condition: "SCORE",
-            // status: "WAITING",
-            // is_permanent: false
+            max_players: roomData.maxPlayers,
+            buy_in_amount: roomData.entryFee,
+            time_limit_seconds: null,
+            win_condition: 'SCORE',
+            status: 'WAITING',
+            is_permanent: false
         };
-        send('room:create', backendRoomData);
+        // Return a promise that resolves with the new room id
+      return new Promise((resolve) => {
+        function onRoomCreated(event: any) {
+            // Access through event.detail
+            const room = event.detail?.room;
+            if (room && room.id) {
+                window.removeEventListener('room:created', onRoomCreated);
+                showCreateModal = false; // Close modal here
+                resolve(room.id);
+            }
+        }
+            window.addEventListener('room:created', onRoomCreated);
+            send('room:create', backendRoomData);
+        });
     }
 
     function togglePanel()
@@ -104,7 +109,6 @@
             </select>
         </div>
         {#each filteredRooms as room (room.id)}
-            <!-- <RoomCard {room}></RoomCard> -->
              <RoomCard {room} onJoin={() => handleJoin(room.id)} />
         {:else}
             <p class="no-rooms">No rooms found...</p>

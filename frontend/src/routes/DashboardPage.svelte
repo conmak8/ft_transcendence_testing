@@ -2,6 +2,9 @@
   import FriendsForm from "../components/FriendsForm.svelte";
   import RoomsForm from "../components/RoomsForm.svelte";
   import ChatForm from "../components/ChatForm.svelte";
+  // import Button from '../components/Button.svelte';
+
+  // import { send } from '../stores/roomStore.svelte';
 
 
   import { onMount } from 'svelte';
@@ -34,4 +37,6 @@
   position: relative;
   min-height: 100vh;
 }
+
+
 </style>
