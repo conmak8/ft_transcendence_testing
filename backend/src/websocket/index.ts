@@ -115,11 +115,11 @@ export async function setupWebSocket(
 
             // Send the room list after successful authentication
             const roomsResult = await db.query(
-               `SELECT r.id, r.name, r.creator_id, r.max_players, r.status, r.is_permanent,
+               `SELECT r.id, r.name, r.creator_id, r.max_players, r.status, r.is_permanent, r.buy_in_amount,
                         COUNT(rp.user_id) AS current_players
                   FROM rooms r
               LEFT JOIN room_players rp ON r.id = rp.room_id
-              GROUP BY r.id, r.name, r.creator_id, r.max_players, r.status, r.is_permanent`
+              GROUP BY r.id, r.name, r.creator_id, r.max_players, r.status, r.is_permanent , r.buy_in_amount`
             );
             const rooms = roomsResult.rows.map(room => ({
               id: room.id,
@@ -128,7 +128,8 @@ export async function setupWebSocket(
               max_players: room.max_players,
               status: room.status,
               is_permanent: room.is_permanent,
-              current_players: room.current_players
+              current_players: room.current_players,
+              buy_in_amount: room.buy_in_amount
             }));
             connectionManager.send(user.id, 'room:list', rooms);
 

@@ -137,7 +137,8 @@ export async function handleRoomCreate(
         max_players: room.max_players,
         status: room.status,
         is_permanent: room.is_permanent,
-        current_players: 1
+        current_players: 1,
+        buy_in_amount: room.buy_in_amount
       },
       players: [
         {
@@ -276,7 +277,9 @@ export async function handleRoomJoin(
         max_players: room.max_players,
         status: room.status,
         is_permanent: room.is_permanent,
-        current_players: playerCount
+        current_players: playerCount,
+        // buy_in_amount: room.buy_in_amount 
+
       },
       players: playersResult.rows,
       your_slot: nextSlot,

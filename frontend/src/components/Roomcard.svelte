@@ -8,10 +8,11 @@
 
 
 </script>
+<!-- <pre>{JSON.stringify(room, null, 2)}</pre> -->
 <div class="room-card" class:full={isFull}>
     <div class="room-header">
         <div class="room-name">{room.name}</div>
-        <span class="fee">{room.entryFee} 💰</span>
+        <span class="fee">{room.buy_in_amount} 💰</span>
     </div>
     <hr class="line" />
     <div class="room-body">
