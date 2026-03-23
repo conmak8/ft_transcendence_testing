@@ -131,15 +131,17 @@ export async function setupWebSocket(
               current_players: room.current_players,
               buy_in_amount: room.buy_in_amount
             }));
-            connectionManager.send(user.id, 'room:list', rooms);
 
+            connectionManager.send(user.id, 'room:list', rooms);
+            
+            
             // Notify accepted friends that this user is online
             await notifyFriendsOnline(db, user.id);
-
+            
             console.log(`✅ WS: User ${user.username} authenticated`);
             return;
           }
-
+          
           // ============================================
           // All other events require auth
           // ============================================

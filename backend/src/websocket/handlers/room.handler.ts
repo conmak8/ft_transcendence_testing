@@ -153,6 +153,27 @@ export async function handleRoomCreate(
     });
 
     console.log(`🎮 Room ${room.id} "${room.name}" created by user ${userId}`);
+
+    // Fetch updated room list and broadcast to all users
+    const roomsResult = await db.query(
+      `SELECT r.id, r.name, r.creator_id, r.max_players, r.status, r.is_permanent, r.buy_in_amount,
+              COUNT(rp.user_id) AS current_players
+         FROM rooms r
+    LEFT JOIN room_players rp ON r.id = rp.room_id
+    GROUP BY r.id, r.name, r.creator_id, r.max_players, r.status, r.is_permanent, r.buy_in_amount`
+    );
+    const rooms = roomsResult.rows.map(room => ({
+      id: room.id,
+      name: room.name,
+      creator_id: room.creator_id ? String(room.creator_id) : null,
+      max_players: room.max_players,
+      status: room.status,
+      is_permanent: room.is_permanent,
+      current_players: room.current_players,
+      buy_in_amount: room.buy_in_amount
+    }));
+    connectionManager.broadcastAll('room:list', rooms);
+    
   } catch (err) {
     console.error('❌ handleRoomCreate error:', err);
     connectionManager.send(userId, 'room:error', {
