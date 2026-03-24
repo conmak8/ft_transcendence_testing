@@ -520,6 +520,7 @@ export async function handlePlayerDisconnect(
       slot,
     };
     connectionManager.broadcast(roomName, 'room:player_left', leftPayload);
+    await broadcastRoomList(db);
 
     console.log(
       `🎮 Room ${currentRoomId}: User ${userId} disconnected from slot ${slot}`
