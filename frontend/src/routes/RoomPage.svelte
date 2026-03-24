@@ -1,27 +1,29 @@
 <script lang="ts">
     import { roomState, send } from "../stores/roomStore.svelte";
     import Button from "../components/Button.svelte";
-
-    export let roomId: string;
-
-      // i will delete it later
+    
     function handleLeaveRoom()
     {
-        send('room:leave', { room_id: roomId });
+        if (roomState.currentRoomId)
+        {
+            // we send the ID as a Number to match backend expectations
+            send('room:leave', { room_id: Number(roomState.currentRoomId) });
+        }
     }
 </script>
 
 <main>
 <div class="room">
-    <h1>Room Page</h1>
-    <p>Room ID: {roomId}</p>
+        <h1>Room: {roomState.currentRoom?.name || 'Loading...'}</h1>
+        
+        <div class="players-list">
+            {#each roomState.currentRoomPlayers as player}
+                <p>{player.username} (Slot {player.slot})</p>
+            {/each}
+        </div>
 
-    <!-- {#if roomState.currentRoomId} -->
-      <div class="leave-room-container">
-        <Button onclick={handleLeaveRoom} class="leave-room-btn">Leave Room</Button>
-      </div>
-    <!-- {/if} -->
-</div>
+        <Button onclick={handleLeaveRoom} variant="reset">Leave Room</Button>
+    </div>
 </main>
 
 <style>
@@ -39,11 +41,4 @@
         color :beige;
     }
 
-    .leave-room-container
-    {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    height: 100vh;
-    }
 </style>

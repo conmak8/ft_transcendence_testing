@@ -15,18 +15,21 @@ export interface Room {
 }
 
 // Define the interface for your state
-export interface RoomState
-{
+export interface RoomState {
     rooms: Room[];
     isConnected: boolean;
     currentRoomId: string | null;
+    currentRoom?: Room | null;
+    currentRoomPlayers?: any[];
 }
 
 // Use the interface as a type for $state
 export const roomState = $state<RoomState>({
     rooms: [],
     isConnected: false,
-    currentRoomId: null
+    currentRoomId: null,
+    currentRoom: null,
+    currentRoomPlayers: []
 });
 
 let socket: WebSocket | null = null;
@@ -55,7 +58,6 @@ export function connect(token: string)
             case 'auth:success':
                 console.log("✅ Authenticated");
                 console.log(roomState.isConnected);
-                // send('room:list', {});
                 break;
 
             case 'room:list':
@@ -65,6 +67,15 @@ export function connect(token: string)
                 
             case 'room:created':
                 roomState.rooms = [data.room, ...roomState.rooms];
+                
+                // 2. Set this as the current room for the creator
+                roomState.currentRoomId = data.room.id;
+                roomState.currentRoom = data.room;
+                roomState.currentRoomPlayers = data.players || [];
+                
+                // 3. Trigger the navigation
+                console.log("Room created! Redirecting to:", data.room.id);
+                navigateTo(`/room/${data.room.id}`);
                 break;
 
             // case 'room:update':
@@ -75,6 +86,9 @@ export function connect(token: string)
 
             case 'room:joined':
                 roomState.currentRoomId = data.room.id;
+                roomState.currentRoom = data.room;
+                roomState.currentRoomPlayers = data.players || [];
+                navigateTo(`/room/${data.room.id}`);
                 break;
             
             case 'room:left' :

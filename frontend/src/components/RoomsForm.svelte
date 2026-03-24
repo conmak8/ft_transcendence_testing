@@ -1,6 +1,6 @@
 <script lang="ts">
     import { roomState, send } from '../stores/roomStore.svelte';
-    import { navigateTo } from '../stores/router';
+    // import { navigateTo } from '../stores/router';
 
     import RoomCard from './Roomcard.svelte';
     import Button from './Button.svelte';
@@ -15,23 +15,6 @@
     let showCreateModal = $state(false);
     let prevRooms: Array<{ id: string }> = [];
     const { userId } = get(authStore);
-
-    $effect(() => {
-        if (roomState.rooms.length > prevRooms.length)
-        {
-            // Find the specific room that is new
-            const newRoom = roomState.rooms.find(
-                r => !prevRooms.some(pr => pr.id === r.id)
-            );
-
-            // Is the current user the creator of a new room?
-            if (newRoom && newRoom.creator_id === userId)
-            {
-                navigateTo(`/room/${newRoom.id}`);
-            }
-        }
-        prevRooms = [...roomState.rooms];
-    });
 
     let searchQuery = $state('');
     let sortType = $state<'players' | 'fee'>('players');

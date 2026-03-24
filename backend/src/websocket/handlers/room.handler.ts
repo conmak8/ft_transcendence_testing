@@ -153,27 +153,8 @@ export async function handleRoomCreate(
     });
 
     console.log(`🎮 Room ${room.id} "${room.name}" created by user ${userId}`);
+    await broadcastRoomList(db);
 
-    // Fetch updated room list and broadcast to all users
-    const roomsResult = await db.query(
-      `SELECT r.id, r.name, r.creator_id, r.max_players, r.status, r.is_permanent, r.buy_in_amount,
-              COUNT(rp.user_id) AS current_players
-         FROM rooms r
-    LEFT JOIN room_players rp ON r.id = rp.room_id
-    GROUP BY r.id, r.name, r.creator_id, r.max_players, r.status, r.is_permanent, r.buy_in_amount`
-    );
-    const rooms = roomsResult.rows.map(room => ({
-      id: room.id,
-      name: room.name,
-      creator_id: room.creator_id ? String(room.creator_id) : null,
-      max_players: room.max_players,
-      status: room.status,
-      is_permanent: room.is_permanent,
-      current_players: room.current_players,
-      buy_in_amount: room.buy_in_amount
-    }));
-    connectionManager.broadcastAll('room:list', rooms);
-    
   } catch (err) {
     console.error('❌ handleRoomCreate error:', err);
     connectionManager.send(userId, 'room:error', {
@@ -325,6 +306,7 @@ export async function handleRoomJoin(
     );
 
     console.log(`🎮 Room ${room_id}: User ${userId} joined slot ${nextSlot}`);
+    await broadcastRoomList(db);
   } catch (err) {
     console.error('❌ handleRoomJoin error:', err);
     connectionManager.send(userId, 'room:error', {
@@ -375,6 +357,7 @@ export async function handleRoomLeave(
       slot,
     };
     connectionManager.broadcast(roomName, 'room:player_left', leftPayload);
+    await broadcastRoomList(db);
 
     console.log(`🎮 Room ${room_id}: User ${userId} left slot ${slot}`);
   } catch (err) {
@@ -670,4 +653,31 @@ export async function handleRoomInvite(
     console.error('❌ handleRoomInvite error:', err);
     connectionManager.send(userId, 'room:error', { error: 'Failed to send invite' });
   }
+}
+
+
+
+
+// ------------- frontend add it -------------------
+async function broadcastRoomList(db: Client) {
+  const roomsResult = await db.query(
+    `SELECT r.id, r.name, r.creator_id, r.max_players, r.status, r.is_permanent, r.buy_in_amount,
+            COUNT(rp.user_id)::int AS current_players
+     FROM rooms r
+     LEFT JOIN room_players rp ON r.id = rp.room_id
+     GROUP BY r.id, r.name, r.creator_id, r.max_players, r.status, r.is_permanent, r.buy_in_amount`
+  );
+  
+  const rooms = roomsResult.rows.map(room => ({
+    id: room.id,
+    name: room.name,
+    creator_id: room.creator_id ? String(room.creator_id) : null,
+    max_players: room.max_players,
+    status: room.status,
+    is_permanent: room.is_permanent,
+    current_players: room.current_players,
+    buy_in_amount: room.buy_in_amount
+  }));
+
+  connectionManager.broadcastAll('room:list', rooms);
 }

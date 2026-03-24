@@ -1,5 +1,5 @@
 <script>
-  let { size = 15, handleLogoClick = null } = $props();
+  let { size = 11, handleLogoClick = null } = $props();
 
   let pressed = $state(false);
 
