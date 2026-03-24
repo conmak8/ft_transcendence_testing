@@ -26,14 +26,32 @@ function getRandomGridPosition(board) {
   };
 }
 
-function getFreeFoodPosition(board, snakes) {
-  let position = getRandomGridPosition(board);
+// function getFreeFoodPosition(board, snakes) {
+//   let position = getRandomGridPosition(board);
 
-  while (snakes.some((snake) => isPositionOnSnake(position, snake))) {
-    position = getRandomGridPosition(board);
+//   while (snakes.some((snake) => isPositionOnSnake(position, snake))) {
+//     position = getRandomGridPosition(board);
+//   }
+
+//   return position;
+// }
+
+// not loop for ever
+function getFreeFoodPosition(board, snakes) {
+  const maxAttempts = 100;
+
+  for (let i = 0; i < maxAttempts; i++) {
+    const position = getRandomGridPosition(board);
+
+    const collision = snakes.some((snake) =>
+      snake.segments.some((seg) => seg.x === position.x && seg.y === position.y)
+    );
+
+    if (!collision) return position;
   }
 
-  return position;
+  // * fallback not perfect though
+  return { x: 0, y: 0 };
 }
 
 export function checkWallCollision(position, board) {
