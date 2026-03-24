@@ -100,6 +100,34 @@ function drawDebugInfo(ctx, state) {
   }
 }
 
+function drawScore(ctx, state) {
+  const localPlayerId = 'local-player';
+  const score = state.scores[localPlayerId] ?? 0;
+
+  ctx.fillStyle = COLORS.debugText;
+  ctx.font = '16px Arial';
+  ctx.textAlign = 'left';
+  ctx.fillText(`Score: ${score}`, 40, 200);
+}
+
+function drawGameOverOverlay(ctx, state) {
+  if (state.status !== 'game_over') {
+    return;
+  }
+
+  ctx.fillStyle = 'rgba(0, 0, 0, 0.55)';
+  ctx.fillRect(0, 0, CANVAS_WIDTH, CANVAS_HEIGHT);
+
+  ctx.fillStyle = COLORS.titleText;
+  ctx.font = 'bold 42px Arial';
+  ctx.textAlign = 'center';
+  ctx.fillText('Game Over', CANVAS_WIDTH / 2, CANVAS_HEIGHT / 2 - 20);
+
+  ctx.fillStyle = COLORS.subtitleText;
+  ctx.font = '20px Arial';
+  ctx.fillText('Refresh later or add restart soon', CANVAS_WIDTH / 2, CANVAS_HEIGHT / 2 + 20);
+}
+
 export function renderGame(ctx, state) {
   clearCanvas(ctx);
   drawBoard(ctx, state.board);
@@ -112,4 +140,6 @@ export function renderGame(ctx, state) {
   });
 
   drawDebugInfo(ctx, state);
+  drawScore(ctx, state);
+  drawGameOverOverlay(ctx, state);
 }

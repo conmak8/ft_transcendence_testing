@@ -12,7 +12,7 @@ import {
 export function createInitialGameState() {
   return {
     title: GAME_TITLE,
-    status: 'ready',
+    status: 'running',
     board: {
       cols: BOARD_COLS,
       rows: BOARD_ROWS,

@@ -1,5 +1,11 @@
 // move snakes according to direction and tick.
 
+import {
+  checkWallCollision,
+  checkFoodCollision,
+  respawnFood
+} from './collisionSystem.js';
+
 function getNextHeadPosition(head, direction) {
   switch (direction) {
     case 'up':
@@ -27,7 +33,7 @@ function isOppositeDirection(currentDirection, nextDirection) {
 export function moveSnakeOneStep(state) {
   const snake = state.snakes[0];
 
-  if (!snake || !snake.alive) {
+  if (!snake || !snake.alive || state.status === 'game_over') {
     return;
   }
 
@@ -40,7 +46,36 @@ export function moveSnakeOneStep(state) {
 
   const currentHead = snake.segments[0];
   const nextHead = getNextHeadPosition(currentHead, snake.direction);
+  const ateFood = checkFoodCollision(nextHead, state.food);
 
-  const newSegments = [nextHead, ...snake.segments.slice(0, -1)];
+  let newSegments;
+
+  if (ateFood) {
+    newSegments = [nextHead, ...snake.segments];
+  } else {
+    newSegments = [nextHead, ...snake.segments.slice(0, -1)];
+  }
+
+  if (checkWallCollision(nextHead, state.board)) {
+    snake.alive = false;
+    state.status = 'game_over';
+    return;
+  }
+
+  const hitSelf = newSegments
+    .slice(1)
+    .some((segment) => segment.x === nextHead.x && segment.y === nextHead.y);
+
+  if (hitSelf) {
+    snake.alive = false;
+    state.status = 'game_over';
+    return;
+  }
+
   snake.segments = newSegments;
+
+  if (ateFood) {
+    state.scores[snake.id] += 1;
+    respawnFood(state);
+  }
 }
