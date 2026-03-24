@@ -5,10 +5,10 @@ import type {
   PlayerLeftPayload,
   PlayerReadyPayload,
   RoomCreatePayload,
+  RoomInvitePayload,
   RoomJoinedPayload,
   RoomJoinPayload,
   RoomKickPayload,
-  RoomInvitePayload,
   RoomLeavePayload,
   RoomReadyPayload,
 } from '../types.ts';
@@ -138,7 +138,7 @@ export async function handleRoomCreate(
         status: room.status,
         is_permanent: room.is_permanent,
         current_players: 1,
-        buy_in_amount: room.buy_in_amount
+        buy_in_amount: room.buy_in_amount,
       },
       players: [
         {
@@ -154,7 +154,6 @@ export async function handleRoomCreate(
 
     console.log(`🎮 Room ${room.id} "${room.name}" created by user ${userId}`);
     await broadcastRoomList(db);
-
   } catch (err) {
     console.error('❌ handleRoomCreate error:', err);
     connectionManager.send(userId, 'room:error', {
@@ -280,8 +279,7 @@ export async function handleRoomJoin(
         status: room.status,
         is_permanent: room.is_permanent,
         current_players: playerCount,
-        // buy_in_amount: room.buy_in_amount 
-
+        // buy_in_amount: room.buy_in_amount
       },
       players: playersResult.rows,
       your_slot: nextSlot,
@@ -555,11 +553,15 @@ export async function handleRoomKick(
       return;
     }
     if (String(roomResult.rows[0].creator_id) !== userId) {
-      connectionManager.send(userId, 'room:error', { error: 'Only the room creator can kick players' });
+      connectionManager.send(userId, 'room:error', {
+        error: 'Only the room creator can kick players',
+      });
       return;
     }
     if (target_user_id === userId) {
-      connectionManager.send(userId, 'room:error', { error: 'Cannot kick yourself' });
+      connectionManager.send(userId, 'room:error', {
+        error: 'Cannot kick yourself',
+      });
       return;
     }
 
@@ -569,7 +571,9 @@ export async function handleRoomKick(
       [room_id, target_user_id]
     );
     if (playerResult.rows.length === 0) {
-      connectionManager.send(userId, 'room:error', { error: 'Player not in room' });
+      connectionManager.send(userId, 'room:error', {
+        error: 'Player not in room',
+      });
       return;
     }
     const slot = playerResult.rows[0].player_slot;
@@ -584,15 +588,25 @@ export async function handleRoomKick(
     connectionManager.leaveRoom(target_user_id, roomName);
 
     // Notify kicked user
-    connectionManager.send(target_user_id, 'room:kicked', { room_id, reason: 'Kicked by room creator' });
+    connectionManager.send(target_user_id, 'room:kicked', {
+      room_id,
+      reason: 'Kicked by room creator',
+    });
 
     // Broadcast player_left to room
-    connectionManager.broadcast(roomName, 'room:player_left', { user_id: target_user_id, slot });
+    connectionManager.broadcast(roomName, 'room:player_left', {
+      user_id: target_user_id,
+      slot,
+    });
 
-    console.log(`🎮 Room ${room_id}: User ${target_user_id} kicked by creator ${userId}`);
+    console.log(
+      `🎮 Room ${room_id}: User ${target_user_id} kicked by creator ${userId}`
+    );
   } catch (err) {
     console.error('❌ handleRoomKick error:', err);
-    connectionManager.send(userId, 'room:error', { error: 'Failed to kick player' });
+    connectionManager.send(userId, 'room:error', {
+      error: 'Failed to kick player',
+    });
   }
 }
 
@@ -614,7 +628,9 @@ export async function handleRoomInvite(
       [room_id, userId]
     );
     if (memberCheck.rows.length === 0) {
-      connectionManager.send(userId, 'room:error', { error: 'You are not in this room' });
+      connectionManager.send(userId, 'room:error', {
+        error: 'You are not in this room',
+      });
       return;
     }
 
@@ -630,7 +646,9 @@ export async function handleRoomInvite(
     const room = roomResult.rows[0];
 
     if (room.status !== 'WAITING') {
-      connectionManager.send(userId, 'room:error', { error: 'Room is already in a game' });
+      connectionManager.send(userId, 'room:error', {
+        error: 'Room is already in a game',
+      });
       return;
     }
 
@@ -652,12 +670,11 @@ export async function handleRoomInvite(
     console.log(`📨 Room ${room_id}: User ${userId} invited ${target_user_id}`);
   } catch (err) {
     console.error('❌ handleRoomInvite error:', err);
-    connectionManager.send(userId, 'room:error', { error: 'Failed to send invite' });
+    connectionManager.send(userId, 'room:error', {
+      error: 'Failed to send invite',
+    });
   }
 }
-
-
-
 
 // ------------- frontend add it -------------------
 async function broadcastRoomList(db: Client) {
@@ -668,8 +685,8 @@ async function broadcastRoomList(db: Client) {
      LEFT JOIN room_players rp ON r.id = rp.room_id
      GROUP BY r.id, r.name, r.creator_id, r.max_players, r.status, r.is_permanent, r.buy_in_amount`
   );
-  
-  const rooms = roomsResult.rows.map(room => ({
+
+  const rooms = roomsResult.rows.map((room) => ({
     id: room.id,
     name: room.name,
     creator_id: room.creator_id ? String(room.creator_id) : null,
@@ -677,7 +694,7 @@ async function broadcastRoomList(db: Client) {
     status: room.status,
     is_permanent: room.is_permanent,
     current_players: room.current_players,
-    buy_in_amount: room.buy_in_amount
+    buy_in_amount: room.buy_in_amount,
   }));
 
   connectionManager.broadcastAll('room:list', rooms);

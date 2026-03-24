@@ -3,49 +3,6 @@ import { writable } from 'svelte/store'
 export const currentPath = writable<string>(window.location.pathname)
 
 const protectedRoutes = ['/dashboard', '/setting', '/room']
-// let isProtected = protectedRoutes.includes(window.location.pathname)
-// let protectedPath = isProtected ? window.location.pathname : ''
-
-// export function navigateTo(path: string): void
-// {
-//     if (protectedRoutes.includes(path))
-//     {
-//         isProtected = true
-//         protectedPath = path
-//         window.history.replaceState(null, '', path)
-
-//         window.history.pushState(null, '', path)
-//         window.history.back()
-//         window.history.forward()
-//     }
-//     else
-//     {
-//         isProtected = false
-//         protectedPath = ''
-//     }
-//     currentPath.set(path)
-// }
-
-// Block back/forward navigation
-// window.addEventListener('popstate', () => {
-//     if (isProtected)
-//     {
-//         history.go(1)
-//         return
-//     }
-
-//     const path = window.location.pathname || '/'
-
-//     // Block forward navigation to protected routes when logged out
-//     if (protectedRoutes.includes(path))
-//     {
-//         window.history.replaceState(null, '', '/')
-//         currentPath.set('/')
-//         return
-//     }
-
-//     currentPath.set(path)
-// })
 
 
 // Helper to check if a path starts with any of our protected prefixes
@@ -53,27 +10,29 @@ const isPathProtected = (path: string) =>
     protectedRoutes.some(route => path.startsWith(route));
 
 export function navigateTo(path: string): void {
-    // 1. Update the browser URL (This was missing for non-protected or dynamic routes)
-    window.history.pushState(null, '', path);
-
-    // 2. Update the Svelte store so the UI switches components
-    currentPath.set(path);
+    // Only push if the path is actually different to avoid history bloating
+    if (window.location.pathname !== path)
+    {
+        window.history.pushState(null, '', path);
+        currentPath.set(path);
+    }
 }
 
-// Handle browser Back/Forward buttons
-window.addEventListener('popstate', () => {
+// Handle browser Close/Refresh navigation This triggers the standard browser "Changes you made may not be saved" popup.
+window.addEventListener('beforeunload', (event) => {
     const path = window.location.pathname;
-
-    // Optional: Add logic here to redirect to login if user 
-    // tries to 'Back' into a protected route while logged out
-    currentPath.set(path);
+    if (isPathProtected(path)) {
+        event.preventDefault();
+        // maybe we need it for other browsers to show the prompt
+        // event.returnValue = ''; 
+    }
 });
 
-
-
-
-
-
-
-
-
+// Handle internal Back/Forward buttons
+window.addEventListener('popstate', () => {
+    const newPath = window.location.pathname;
+    
+    // Instead of forcing 'history.go(1)', we simply update our app state.
+    // If the user goes 'Back' from /room to /login, the UI updates instantly.
+    currentPath.set(newPath);
+});

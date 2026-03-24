@@ -58,13 +58,13 @@
 <style>
 
 .hero-section {
-  position: relative;
-  height: calc(100vh - 120px);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-    /* padding: 20px; */
-    /* margin-top: 80px; */
+    position: relative;
+    height: calc(100vh - 120px);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    /* padding: 10px; */
+    margin-top: 60px;
     overflow: hidden;
   }
   
