@@ -86,7 +86,7 @@
 
         <div class="action-footer">
             <Button class={"btn-ready" + (isActiveReady ? " active" : "")} onclick={handlePlayerReady} variant="ready"> READY </Button>
-            <Button class="btn-leave" variant="cancel"onclick={handleLeaveRoom}>LEAVE</Button>
+            <Button class="btn-leave" variant="cancel" onclick={handleLeaveRoom}>LEAVE</Button>
         </div>
     </div>
     {/if}
@@ -235,30 +235,9 @@
     
     .action-footer
     {
-        scale: 80%;
         margin-bottom: 16px;
         display: flex;
-        gap: 22px;
+        gap: 16px;
     }
-
-
-    /* --- i we use it later --- */
-    /* .avatar-placeholder
-    {
-        width: 40px;
-        height: 40px;
-        background: #2a2a2a;
-        border-radius: 4px;
-    } */
-    
-      /* .avatar-image
-    {
-        width: 100%;
-        height: 100%;
-        border-radius: 50%;
-        object-fit: cover;
-    } */
-
-    /* .rank { font-size: 0.7rem; color: #555; } */
 </style>
 
