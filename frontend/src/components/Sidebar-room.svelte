@@ -2,8 +2,8 @@
     import { roomState, send } from '../stores/roomStore.svelte';
     import Button from './Button.svelte';
 
-    let isActiveKick = $state(false);
     let isActiveReady = $state(false);
+    let kickedPlayerId = $state(null);
 
     function handleLeaveRoom()
     {
@@ -21,10 +21,18 @@
         send('room:ready', { room_id: Number(roomState.currentRoomId) });
     }
 
-    function handleKickPlayer()
+    function handleKickPlayer(id: string)
     {
-        isActiveKick = !isActiveKick;
-        // send('room:kick', { room_id: Number(roomState.currentRoomId) });
+        if (kickedPlayerId === id)
+        {
+            kickedPlayerId = null; // Toggle off if clicking the same one
+        }
+        else
+        {
+            kickedPlayerId = id; // Toggle on
+        }
+        console.log(`Kicking player ${id} from room ${roomState.currentRoomId}`);
+        send('room:kick', { room_id: Number(roomState.currentRoomId), target_user_id: id });
     }
 
     let isExpanded = $state(true);
@@ -68,9 +76,9 @@
                     <div class="status-tag" class:is-ready={player.is_ready}>
                         {player.is_ready ? "READY" : "NOT_READY"}
                     </div>
-                    <!-- can not the other use kick the creator &&  not visible for the creator the button-->
+                    <!-- can not the other users kick the creator &&  not visible for the creator the button-->
                     {#if roomState.currentRoom && roomState.currentRoom.creator_id === roomState.currentUserId && player.id !== roomState.currentUserId}
-                    <Button class={"btn-kick" + (isActiveKick ? " active" : "")} variant="kick" onclick={handleKickPlayer}>KICK</Button>
+                    <Button class={kickedPlayerId === player.id ? "active" : ""} variant="kick" onclick={() => handleKickPlayer(player.id)}>KICK</Button>
                     {/if}
                 </div>
             {/each}

@@ -2,11 +2,14 @@
     import Button from "./Button.svelte";
     let {room, onJoin } = $props();
 
+
     const isFull = $derived(room.current_players === room.max_players);
     const fillPercent = $derived((room.current_players / room.max_players) * 100);
 
-
 </script>
+
+
+
 <!-- <pre>{JSON.stringify(room, null, 2)}</pre> -->
 <div class="room-card" class:full={isFull}>
     <div class="room-header">

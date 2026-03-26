@@ -124,6 +124,14 @@ export function connect(token: string)
                 });
                 break;
 
+            case 'room:kicked':
+                    roomState.currentRoomId = null;
+                    roomState.currentRoom = null;
+                    roomState.currentRoomPlayers = [];
+                    console.log("%c[SYSTEM] You have been kicked.", "color: orange;");
+                    navigateTo('/dashboard');
+                break;
+
             case 'error':
                 console.error("Server error event:", data);
                 break;

@@ -1,6 +1,5 @@
 <script>
   import Sidebar from "../components/Sidebar-room.svelte";
-  import Testchatbox from "../components/testchatbox.svelte";
 </script>
 
 <main>
