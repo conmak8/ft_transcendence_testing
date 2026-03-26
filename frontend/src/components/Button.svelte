@@ -15,7 +15,8 @@
             | 'create'
             | 'cancel'
             | 'ready'
-            | 'noready';
+            | 'noready'
+            | 'kick';
         onclick?: (event: MouseEvent) => void;
         ariaExpanded?: boolean;
         ariaLabel?: string;
@@ -55,9 +56,11 @@
     class:cancel={variant === 'cancel'}
     class:ready={variant === 'ready'}
     class:noready={variant === 'noready'}
+    class:kick={variant === 'kick'}
 >
     {@render children()}
 </button>
+   
 
 <style>
     button
@@ -65,8 +68,10 @@
         width: 90%;
         padding: 1.7rem;
         background: #0AEB00;
+        /* background: #0ec904; */
         color: #fff;
         border: none;
+        /* border-left: 2px solid #ffffff; */
         border-radius: 0px;
         font-weight: bold;
         cursor: pointer;
@@ -191,13 +196,39 @@
 
     }
 
-     button.ready
+    button.ready
     {
         width: auto;
         min-width: 120px;
-        background: #0AEB00;
+        background: #B13BCC;
         color:  #ffffff;
         border: 1px solid rgba(177, 59, 204, 0);
 
     }
+
+    button.ready.active
+    {
+        background: #0AEB00;
+        color:  #ffffff;
+    }
+
+    button.kick
+    {
+        width: auto;
+        min-width: 60px;
+        padding: 8px 8px;
+        border: 1px solid #ff4444;
+        background: transparent;
+        color: #ff6b6b;
+    }
+
+    button.kick:hover, 
+    button.kick.active
+    { 
+        background: #ff4444;
+        color: #fff;
+    }
+    
+
 </style>
+

@@ -1,5 +1,4 @@
 <script lang="ts">
-    // export let room;
     import Button from "./Button.svelte";
     let {room, onJoin } = $props();
 
@@ -55,8 +54,9 @@
 
     .room-name
     {
-        color:  #B13BCC;
-        font-size: 20px;
+        /* color:  #B13BCC; */
+        color: white;
+        font-size: 13px;
         font-weight: 800;
         /* text-align: left; */
     }
@@ -65,7 +65,7 @@
     {
         display:block;
         color: #c8eb00;
-        font-size: 14px;
+        font-size: 13px;
         font-weight: 600;
         /* text-align: left; */
 

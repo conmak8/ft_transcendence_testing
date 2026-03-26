@@ -1,20 +1,13 @@
 <script lang="ts">
     import { roomState, send } from '../stores/roomStore.svelte';
-    // import { navigateTo } from '../stores/router';
-
     import RoomCard from './Roomcard.svelte';
     import Button from './Button.svelte';
     import CreateRoomForm from './CreateRoomForm.svelte';
-
-    // import { get } from 'svelte/store';
-    // import { authStore } from '../stores/authStore';
 
 
 
     let isExpanded = $state(true);
     let showCreateModal = $state(false);
-    // let prevRooms: Array<{ id: string }> = [];
-    // const { userId } = get(authStore);
 
     let searchQuery = $state('');
     let sortType = $state<'players' | 'fee'>('players');
@@ -80,14 +73,14 @@
     <div class="rooms-panel">
         <div class="rooms-header">
             <h2>Rooms : <span class="room-count"> {roomState.rooms.length}</span></h2>
-                <Button variant="create" type="button" onclick={() => showCreateModal = true}>+</Button>
-         </div>
+            <Button variant="create" type="button" onclick={() => showCreateModal = true}>+</Button>
+        </div>
         <div class="filter-toolbar">
             <input 
-                type="text" 
-                placeholder="Search..." 
-                bind:value={searchQuery}
-                class="search-input"
+            type="text" 
+            placeholder="  Search..." 
+            bind:value={searchQuery}
+            class="search-input"
             />
             <select bind:value={sortType} class="sort-select">
                 <option value="players">Players</option>
@@ -95,25 +88,20 @@
             </select>
         </div>
         {#each filteredRooms as room (room.id)}
-             <RoomCard {room} onJoin={() => handleJoin(room.id)} />
-        {:else}
+        <RoomCard {room} onJoin={() => handleJoin(room.id)} />
+            {:else}
             <p class="no-rooms">No rooms found...</p>
-        {/each}
+            {/each}
     </div>
     {/if}
 </aside>
 
 <style>
-
     .room-count
     {
-        /* background: #0ceb00; */
-        /* border: 0.4px solid #B13BCC; */
         color: #fff;
-        /* color: #0ceb00; */
         padding: 2px 10px;
         font-size: 1.4em;
-        /* margin-left: 8px; */
         font-weight: bold;
     }
     .rooms-drawer
@@ -129,7 +117,8 @@
 
     .rooms-drawer.expanded
     {
-        width: max(320px, calc(33.333vw/1.5));
+        /* width: max(320px, calc(33.333vw/1.5)); */
+         width: 400px;
     }
 
     .rooms-panel
@@ -137,8 +126,8 @@
         margin-right: 55px;
         height: 100%;
         box-sizing: border-box;
-        border: 1px solid rgba(10, 235, 0, 0.1);
-        background: rgba(15, 19, 20, 0.6);
+        border: 1px solid rgba(10, 235, 0, 0.6);
+        background: rgba(15, 19, 20);
         backdrop-filter: blur(10px);
         padding: 36px;
         overflow-y: auto;
@@ -147,7 +136,7 @@
     .rooms-panel:hover
     {
         border-color: #0AEB00;
-        background: rgba(10, 235, 0, 0.02);
+        background: rgba(10, 235, 0, 0.01);
     }
 
     .rooms-header
@@ -186,7 +175,6 @@
     }
 
 
-
     .filter-toolbar
     {
         display: flex;
@@ -199,13 +187,8 @@
         background: rgba(0, 0, 0, 0.4);
         border: 1px solid rgba(10, 235, 0, 0.3);
         color: #0AEB00;
-        padding: 6px 10px;
+        padding: 6px 1px;
         outline: none;
-    }
-
-    .search-input
-    {
-        flex: 1;
     }
 
     .search-input:focus, .sort-select:focus

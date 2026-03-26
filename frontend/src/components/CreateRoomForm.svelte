@@ -1,9 +1,7 @@
 <script lang="ts">
     import { send } from '../stores/roomStore.svelte';
 	import Button from './Button.svelte';
-    // import { roomState } from '../stores/roomStore.svelte';
-    // import { navigateTo } from '../stores/router';
-    
+
 	
    let { onClose, onCreate } = $props<{
         onClose: () => void;
