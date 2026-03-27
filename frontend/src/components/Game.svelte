@@ -1,8 +1,8 @@
 <script lang="ts">
-
+export let sidebarExpanded: boolean = true;
 </script>
 
-<div class="game-container">
+<div class="game-container" class:collapsed={!sidebarExpanded}>
     <h1>Game Area</h1>
 </div>
 
@@ -21,5 +21,10 @@
     flex-direction: column;
     align-items: center;
     justify-content: center;
+}
+
+.game-container.collapsed
+{
+    width: calc(100vw - 70px);
 }
 </style>

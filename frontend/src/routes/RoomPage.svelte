@@ -1,12 +1,13 @@
 <script>
   import Sidebar from "../components/Sidebar-room.svelte";
   import Game from "../components/Game.svelte";
+  let isSidebarExpanded = true;
 </script>
 
 <main>
   <div class="dashboard-layout">
-    <Sidebar />
-    <Game />
+    <Sidebar bind:isExpanded= {isSidebarExpanded}/>
+    <Game sidebarExpanded={isSidebarExpanded}/>
   </div>
 </main>
 
