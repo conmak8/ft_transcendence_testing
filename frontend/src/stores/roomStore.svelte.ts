@@ -1,5 +1,11 @@
 import { navigateTo } from "./router";
 
+/* TODO for missing handlers:
+
+game:start
+game:state
+game:end */
+
 export interface Room
 {
     id: string;

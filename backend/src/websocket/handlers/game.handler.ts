@@ -5,6 +5,13 @@ import { connectionManager } from '../connectionManager.ts';
 // Snake Game Types
 // ============================================
 
+// TODO:
+// - current input model uses relative left/right turns.
+//   MVP target uses absolute directions: up/down/left/right.
+// - current logic checks collisions between players in one shared arena.
+//   MVP target uses isolated per-player boxes, so cross-player collision
+//   logic should be removed in a later milestone.
+
 interface Point {
   x: number;
   y: number;

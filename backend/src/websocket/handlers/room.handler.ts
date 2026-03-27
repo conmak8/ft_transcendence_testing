@@ -14,6 +14,11 @@ import type {
 } from '../types.ts';
 import { startGameLoop } from './game.handler.ts';
 
+// TODO:
+// allow room capacity 1..4 for solo rooms
+// current logic assumes 2..4 and "full room before start"
+// MVP target should support max_players = 1
+
 // ============================================
 // Room Handlers
 // ============================================

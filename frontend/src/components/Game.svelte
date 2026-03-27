@@ -2,6 +2,13 @@
 
 </script>
 
+<!-- TODO this component will become:
+room-mode snapshot renderer
+box layout renderer
+not the local game engine -->
+
+
+
 <div class="game-container">
     <h1>Game Area</h1>
 </div>
