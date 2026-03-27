@@ -4,6 +4,7 @@
     import { currentPath, navigateTo } from '../stores/router'; //need this one as to know if i render avatar block
     import { settingsService } from '../services/settingsService';
     import { avatarStore } from '../stores/avatarStore';
+    import { roomState, send } from '../stores/roomStore.svelte';
     
     let showDropdown = $state(false);
     
@@ -30,6 +31,10 @@
     function goToDashboard()
     {
         showDropdown = false;
+        if (roomState.currentRoomId)
+        {
+            send('room:leave', { room_id: Number(roomState.currentRoomId) });
+        }
         navigateTo('/dashboard');
     }
 
