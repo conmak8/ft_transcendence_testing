@@ -1,5 +1,6 @@
 <script>
     import { authStore } from '../stores/authStore';
+    import Logo from './Logo.svelte';
     import { currentPath, navigateTo } from '../stores/router'; //need this one as to know if i render avatar block
     import { settingsService } from '../services/settingsService';
     import { avatarStore } from '../stores/avatarStore';
@@ -26,6 +27,13 @@
         navigateTo('/setting');
     }
 
+    function goToDashboard()
+    {
+        showDropdown = false;
+        navigateTo('/dashboard');
+    }
+
+    // as the browser to treat as a new URL, so it reloads the latest avatar/ no old cached image
     function goToWork()
     {
         showDropdown = false;
@@ -75,7 +83,9 @@
 <header>
   <div id="header">
     <div class="header-logo">
-      <img src="src/images/c.svg" alt="Logo"/>
+    {#if $authStore.isLoggedIn}
+      <Logo handleLogoClick={goToDashboard}/>
+    {/if}
     </div>
     <div class="header-nav">
     <!-- When route becomes /, that whole block is not rendered. -->
@@ -106,6 +116,33 @@
 </header>
 
 <style>
+    #header
+    {
+        width: 100%;
+        height: 80px;
+        background-color: #0f1314;
+        backdrop-filter: blur(10px);
+        position: fixed;
+        top: 0;
+        left: 0;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+        z-index: 1000;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 0 20px;
+        box-sizing: border-box;
+    }
+
+    .header-nav
+    {
+        display: flex;
+        gap: 60px;
+        flex: 1;
+        justify-content: flex-end;
+        margin-right: 45px;
+    }
+
     .avatar-container
     {
         position: relative;
@@ -116,19 +153,23 @@
         width: 50px;
         height: 50px;
         border-radius: 50%;
-        border: 1px solid rgba(10, 235, 0, 0.1);
+        border: none;
         background:rgba(255, 255, 255, 0.1);
-        /* padding: 0;
-        margin: 0; */
+        padding: 0;
+        /* margin: 0; */
         display: flex;
         align-items: center;
         justify-content: center;
+        cursor:pointer;
         padding: 0;
     }
 
     .avatar:hover
     {
-          border: 1px solid #0AEB00;
+        /* border:  0px solid #B13BCC; */
+        outline: 2px solid #B13BCC;
+        /* outline-offset: 2px; */
+        /* transform: scale(1.1); */
     }
 
     .avatar-image
