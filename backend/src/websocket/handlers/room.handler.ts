@@ -5,10 +5,10 @@ import type {
   PlayerLeftPayload,
   PlayerReadyPayload,
   RoomCreatePayload,
+  RoomInvitePayload,
   RoomJoinedPayload,
   RoomJoinPayload,
   RoomKickPayload,
-  RoomInvitePayload,
   RoomLeavePayload,
   RoomReadyPayload,
 } from '../types.ts';
@@ -141,6 +141,8 @@ export async function handleRoomCreate(
         max_players: room.max_players,
         status: room.status,
         is_permanent: room.is_permanent,
+        current_players: 1,
+        buy_in_amount: room.buy_in_amount,
       },
       players: [
         {
@@ -155,6 +157,7 @@ export async function handleRoomCreate(
     });
 
     console.log(`🎮 Room ${room.id} "${room.name}" created by user ${userId}`);
+    await broadcastRoomList(db);
   } catch (err) {
     console.error('❌ handleRoomCreate error:', err);
     connectionManager.send(userId, 'room:error', {
@@ -240,15 +243,6 @@ export async function handleRoomJoin(
       return;
     }
 
-    // 5b. Check buy-in balance
-    if (room.buy_in_amount > 0) {
-      const balanceResult = await db.query('SELECT balance FROM users WHERE id = $1', [userId]);
-      if (balanceResult.rows[0].balance < room.buy_in_amount) {
-        connectionManager.send(userId, 'room:error', { error: 'Not enough coins for buy-in' });
-        return;
-      }
-    }
-
     // 6. Find next available slot
     const slotResult = await db.query(
       `SELECT generate_series(1, $1) as slot
@@ -297,6 +291,8 @@ export async function handleRoomJoin(
         max_players: room.max_players,
         status: room.status,
         is_permanent: room.is_permanent,
+        current_players: playerCount,
+        // buy_in_amount: room.buy_in_amount
       },
       players: playersResult.rows,
       your_slot: nextSlot,
@@ -321,6 +317,7 @@ export async function handleRoomJoin(
     );
 
     console.log(`🎮 Room ${room_id}: User ${userId} joined slot ${nextSlot}`);
+    await broadcastRoomList(db);
   } catch (err) {
     console.error('❌ handleRoomJoin error:', err);
     connectionManager.send(userId, 'room:error', {
@@ -371,6 +368,7 @@ export async function handleRoomLeave(
       slot,
     };
     connectionManager.broadcast(roomName, 'room:player_left', leftPayload);
+    await broadcastRoomList(db);
 
     console.log(`🎮 Room ${room_id}: User ${userId} left slot ${slot}`);
   } catch (err) {
@@ -533,6 +531,7 @@ export async function handlePlayerDisconnect(
       slot,
     };
     connectionManager.broadcast(roomName, 'room:player_left', leftPayload);
+    await broadcastRoomList(db);
 
     console.log(
       `🎮 Room ${currentRoomId}: User ${userId} disconnected from slot ${slot}`
@@ -596,15 +595,26 @@ export async function handleRoomKick(
     connectionManager.leaveRoom(target_user_id, roomName);
 
     // Notify kicked user
-    connectionManager.send(target_user_id, 'room:kicked', { room_id, reason: 'Kicked by room creator' });
+    connectionManager.send(target_user_id, 'room:kicked', {
+      room_id,
+      reason: 'Kicked by room creator',
+    });
 
     // Broadcast player_left to room
-    connectionManager.broadcast(roomName, 'room:player_left', { user_id: target_user_id, slot });
+    connectionManager.broadcast(roomName, 'room:player_left', {
+      user_id: target_user_id,
+      slot,
+    });
+    await broadcastRoomList(db);
 
-    console.log(`🎮 Room ${room_id}: User ${target_user_id} kicked by creator ${userId}`);
+    console.log(
+      `🎮 Room ${room_id}: User ${target_user_id} kicked by creator ${userId}`
+    );
   } catch (err) {
     console.error('❌ handleRoomKick error:', err);
-    connectionManager.send(userId, 'room:error', { error: 'Failed to kick player' });
+    connectionManager.send(userId, 'room:error', {
+      error: 'Failed to kick player',
+    });
   }
 }
 
@@ -664,6 +674,32 @@ export async function handleRoomInvite(
     console.log(`📨 Room ${room_id}: User ${userId} invited ${target_user_id}`);
   } catch (err) {
     console.error('❌ handleRoomInvite error:', err);
-    connectionManager.send(userId, 'room:error', { error: 'Failed to send invite' });
+    connectionManager.send(userId, 'room:error', {
+      error: 'Failed to send invite',
+    });
   }
+}
+
+// ------------- frontend add it -------------------
+async function broadcastRoomList(db: Client) {
+  const roomsResult = await db.query(
+    `SELECT r.id, r.name, r.creator_id, r.max_players, r.status, r.is_permanent, r.buy_in_amount,
+            COUNT(rp.user_id)::int AS current_players
+     FROM rooms r
+     LEFT JOIN room_players rp ON r.id = rp.room_id
+     GROUP BY r.id, r.name, r.creator_id, r.max_players, r.status, r.is_permanent, r.buy_in_amount`
+  );
+
+  const rooms = roomsResult.rows.map((room) => ({
+    id: room.id,
+    name: room.name,
+    creator_id: room.creator_id ? String(room.creator_id) : null,
+    max_players: room.max_players,
+    status: room.status,
+    is_permanent: room.is_permanent,
+    current_players: room.current_players,
+    buy_in_amount: room.buy_in_amount,
+  }));
+
+  connectionManager.broadcastAll('room:list', rooms);
 }
