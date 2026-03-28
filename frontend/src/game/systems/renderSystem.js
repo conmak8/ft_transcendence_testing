@@ -159,7 +159,7 @@ export function renderGame(ctx, state) {
   clearCanvas(ctx);
   drawBoard(ctx, state.board);
   drawGrid(ctx, state.board);
-  drawTitle(ctx, state);
+  // drawTitle(ctx, state);
   drawFood(ctx, state.board, state.food);
 
   state.snakes.forEach((snake) => {
@@ -167,7 +167,7 @@ export function renderGame(ctx, state) {
   });
 
   drawScore(ctx, state);
-  drawDebugInfo(ctx, state);
+  // drawDebugInfo(ctx, state);
 
   drawStartOverlay(ctx, state);
   drawPauseOverlay(ctx, state);

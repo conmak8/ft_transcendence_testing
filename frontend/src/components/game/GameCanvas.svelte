@@ -13,7 +13,7 @@
 
   onMount(() => {
     cleanup = initGame(canvas, {
-      debug: true
+      debug: false
     });
 
     return () => {

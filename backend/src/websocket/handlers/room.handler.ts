@@ -502,6 +502,20 @@ export async function handlePlayerDisconnect(
 
     const slot = playerResult.rows[0].player_slot;
 
+    // handle player disconnection during an active game :
+    // mark that player's snake dead before the room membership vanishes
+    // and  disconnected player's snake dies immediately and the game continues for others
+    const roomStatusResult = await db.query(
+      'SELECT status FROM rooms WHERE id = $1',
+      [currentRoomId]
+    );
+    // extract the status
+    const roomStatus = roomStatusResult.rows[0]?.status;
+
+    if (roomStatus === 'IN_GAME') {
+      handleGameDisconnect(currentRoomId, userId);
+    }
+
     // Remove from room_players
     await db.query(
       'DELETE FROM room_players WHERE room_id = $1 AND user_id = $2',
