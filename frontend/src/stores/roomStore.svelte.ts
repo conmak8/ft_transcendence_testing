@@ -1,4 +1,4 @@
-import { buildWsPath, buildWsPath } from "../utils/constants";
+import { buildWsPath } from "../utils/constants";
 import { navigateTo } from "./router";
 
 export interface Room {
@@ -51,6 +51,7 @@ export function connect(token: string) {
 
     const wsPath = buildWsPath();
     socket = new WebSocket(wsPath);
+
 
     socket.onopen = () => {
         roomState.isConnected = true;
