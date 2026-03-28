@@ -1,9 +1,10 @@
 <script>
   import { currentPath } from './stores/router'
   import { authStore } from './stores/authStore'
+  import { connect, disconnect } from './stores/websocket.svelte.js'
 
   import Layout from './components/Layout.svelte'
-  
+
   import LoginPage from './routes/LoginPage.svelte'
   import HomePage from './routes/HomePage.svelte'
   import DashboardPage from './routes/DashboardPage.svelte'
@@ -12,6 +13,14 @@
   import WorkPage from './routes/WorkPage.svelte'
 
   authStore.initFromSession()
+
+  $effect(() => {
+    if ($authStore.isLoggedIn) {
+      connect()
+    } else {
+      disconnect()
+    }
+  })
 </script>
 
 
