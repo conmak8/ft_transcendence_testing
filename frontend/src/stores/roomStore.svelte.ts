@@ -138,6 +138,22 @@ export function connect(token: string) {
             case 'error':
                 console.error("Server error event:", data);
                 break;
+
+            case 'chat:message':
+            if (data.room_id === null) {
+                globalMessages = [...globalMessages, data];
+            } else {
+                messages = [...messages, data];
+            }
+            break;
+
+            case 'chat:history':
+            if (data.room_id === null) {
+                globalMessages = data.messages || [];
+            } else {
+                messages = data.messages || [];
+            }
+            break;    
         }
     };
 
