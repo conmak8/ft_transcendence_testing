@@ -1,12 +1,12 @@
 <script>
   import Sidebar from "../components/Sidebar-room.svelte";
-  import Game from "../components/Game.svelte";
+  import RoomMultiplayerGame from "../components/game/RoomMultiplayerGame.svelte";
 </script>
 
 <main>
   <div class="dashboard-layout">
     <Sidebar />
-    <Game />
+    <RoomMultiplayerGame />
   </div>
 </main>
 
@@ -16,6 +16,4 @@
   position: relative;
   min-height: 100vh;
 }
-
-
 </style>

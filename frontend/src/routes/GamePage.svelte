@@ -7,7 +7,7 @@
 
 <!-- page-level shell -->
 <script>
-  import GameCanvas from '../components/game/GameCanvas.svelte';
+  import LocalSnakeCanvas from '../components/game/LocalSnakeCanvas.svelte';
 </script>
 
 <main class="game-page">
@@ -17,7 +17,7 @@
   </section>
 
   <section class="game-layout">
-    <GameCanvas />
+    <LocalSnakeCanvas />
   </section>
 </main>
 
