@@ -89,12 +89,18 @@
   <div id="header">
     <div class="header-logo">
     {#if $authStore.isLoggedIn}
-      <Logo handleLogoClick={goToDashboard}/>
+    <Logo handleLogoClick={goToDashboard}/>
     {/if}
+</div>
+<div class="header-nav">
+{#if $authStore.isLoggedIn}
+    <div class="user-info">
+        <span class="user-name">{roomState.currentUserName}</span>
+        <span class="user-balance">💰 {roomState.balance}</span>
     </div>
-    <div class="header-nav">
+{/if}
     <!-- When route becomes /, that whole block is not rendered. -->
-        {#if $currentPath !== '/' && $currentPath !== '/login' && $currentPath !== '/signup'}
+    {#if $currentPath !== '/' && $currentPath !== '/login' && $currentPath !== '/signup'}
         <div class="avatar-container">
             <!-- Always render the avatar button: image for logged-in users, default icon otherwise. -->
             <button class="avatar" onclick={toggleDropdown} type="button" aria-label="Open user menu">
@@ -224,5 +230,33 @@
     .dropdown button:hover
     {
         background: #B13BCC;
+    }
+    
+    .user-info
+    {
+        display: flex;
+        align-items: center;
+        gap: 14px;
+        /* background: rgba(10, 235, 0, 0.08); */
+        /* background: linear-gradient(to right, rgba(10, 235, 0, 0.18) 0%, rgba(10, 235, 0, 0.08) 60%, transparent 100%); */
+    }
+    
+    .user-name
+    {
+        color: #fff;
+        font-weight: 700;
+        font-size: 1.08rem;
+        letter-spacing: 1px;
+        padding-left: 16px;
+    }
+    
+    .user-balance
+    {
+        color: #0AEB00;
+        font-weight: 700;
+        font-size: 1.08rem;
+        padding: 4px 16px;
+        display: flex;
+        align-items: center;
     }
 </style>

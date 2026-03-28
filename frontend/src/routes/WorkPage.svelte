@@ -2,6 +2,8 @@
     import { authStore } from '../stores/authStore';
     import { authService } from '../services/authService';
     import { workService } from '../services/workService';
+    import { roomState } from '../stores/roomStore.svelte';
+
 
     let balance = $state(null);
     let isWorking = $state(false);
@@ -80,6 +82,7 @@
         {
             const result = await workService.work();
             balance = result.balance;
+            roomState.balance = balance; // global (roomState) updated
             feedback = result.message;
             feedbackType = 'success';
             sleepClickCount = 0;
