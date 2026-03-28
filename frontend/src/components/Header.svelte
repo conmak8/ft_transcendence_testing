@@ -96,7 +96,7 @@
 {#if $authStore.isLoggedIn}
     <div class="user-info">
         <span class="user-name">{roomState.currentUserName}</span>
-        <span class="user-balance">💰 {roomState.balance}</span>
+        <!-- <span class="user-balance">💰 {roomState.balance}</span> -->
     </div>
 {/if}
     <!-- When route becomes /, that whole block is not rendered. -->
@@ -249,7 +249,7 @@
         letter-spacing: 1px;
         padding-left: 16px;
     }
-    
+/*     
     .user-balance
     {
         color: #0AEB00;
@@ -258,5 +258,5 @@
         padding: 4px 16px;
         display: flex;
         align-items: center;
-    }
+    } */
 </style>

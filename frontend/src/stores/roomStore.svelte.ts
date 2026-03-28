@@ -24,7 +24,6 @@ export interface RoomState
     currentRoomPlayers?: Player[];
     currentUserId?: string | null;
     currentUserName?: string | null;
-    balance: number;
 }
 
 export interface Player
@@ -34,7 +33,7 @@ export interface Player
     avatar_url: string | null;
     slot: number;
     is_ready: boolean;
-    balance: number;
+
 }
 
 export const roomState = $state<RoomState>({
@@ -45,7 +44,6 @@ export const roomState = $state<RoomState>({
     currentRoomPlayers: [],
     currentUserId: null,
     currentUserName: null,
-    balance: 0
 });
 
 let socket: WebSocket | null = null;
@@ -76,7 +74,6 @@ export function connect(token: string)
                 console.log(roomState.isConnected);
                 roomState.currentUserId = data.userId; // we set the user ID from backend
                 roomState.currentUserName = data.username;
-                roomState.balance = data.balance;
                 break;
 
             case 'room:list':
