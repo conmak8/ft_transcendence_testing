@@ -1,11 +1,12 @@
 <script>
     import { authStore } from '../stores/authStore';
-    import Logo from './Logo.svelte';
-    import { currentPath, navigateTo } from '../stores/router'; //need this one as to know if i render avatar block
+    import { currentPath, navigateTo, selectedProfileUserId } from '../stores/router'; //need this one as to know if i render avatar block
+    import Logo from './Logo.svelte'; 
     import { settingsService } from '../services/settingsService';
     import { avatarStore } from '../stores/avatarStore';
+    import logoUrl from '../images/c.svg';
     import { roomState, send } from '../stores/roomStore.svelte';
-    
+
     let showDropdown = $state(false);
     
     function toggleDropdown()
@@ -26,6 +27,13 @@
     {
         showDropdown = false;
         navigateTo('/setting');
+    }
+
+    function goToProfile()
+    {
+        showDropdown = false;
+        selectedProfileUserId.set(null);
+        navigateTo('/profile');
     }
 
     function goToDashboard()
@@ -86,10 +94,10 @@
 
 
 <header>
-  <div id="header">
+    <div id="header">
     <div class="header-logo">
         {#if $authStore.isLoggedIn}
-        <Logo handleLogoClick={goToDashboard}/>
+            <Logo handleLogoClick={goToDashboard}/>
         {/if}
     </div>
     <div class="header-nav">
@@ -115,6 +123,7 @@
             </button>
             {#if $authStore.isLoggedIn && showDropdown}
                 <div class="dropdown">
+                    <button onclick={goToProfile}>Profile</button>
                     <button onclick={goToSettings}>Settings</button>
                     <button onclick={goToWork}>Go to Work</button>
                     <button onclick={handleLogout}>Logout</button>
@@ -231,7 +240,7 @@
     {
         background: #B13BCC;
     }
-    
+
     .user-info
     {
         display: flex;
@@ -240,7 +249,7 @@
         justify-content: center;
         gap: 2px;
     }
-    
+
     .user-name
     {
         color: #fff;
