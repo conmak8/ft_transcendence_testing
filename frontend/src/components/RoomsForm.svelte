@@ -47,7 +47,7 @@
     if (isExpanded && rooms.length === 0) {
       fetchRooms();
     }
-
+}
 </script>
 
 
