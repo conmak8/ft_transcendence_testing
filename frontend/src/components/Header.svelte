@@ -1,12 +1,19 @@
 <script>
     import { authStore } from '../stores/authStore';
-    import Logo from './Logo.svelte';
-    import { currentPath, navigateTo } from '../stores/router'; //need this one as to know if i render avatar block
+    import { currentPath, navigateTo, selectedProfileUserId } from '../stores/router'; //need this one as to know if i render avatar block
+    import Logo from './Logo.svelte'; 
     import { settingsService } from '../services/settingsService';
     import { avatarStore } from '../stores/avatarStore';
+    import logoUrl from '../images/c.svg';
     import { roomState, send } from '../stores/roomStore.svelte';
-    
+
     let showDropdown = $state(false);
+    const authPagePaths = ['/', '/login', '/signup'];
+
+    function shouldShowUserNavigation(path)
+    {
+        return !authPagePaths.includes(path);
+    }
     
     function toggleDropdown()
     {
@@ -28,6 +35,13 @@
         navigateTo('/setting');
     }
 
+    function goToProfile()
+    {
+        showDropdown = false;
+        selectedProfileUserId.set(null);
+        navigateTo('/profile');
+    }
+
     function goToDashboard()
     {
         showDropdown = false;
@@ -43,6 +57,16 @@
     {
         showDropdown = false;
         navigateTo('/work');
+    }
+
+    function goToPractice()
+    {
+        showDropdown = false;
+        if (roomState.currentRoomId)
+        {
+            send('room:leave', { room_id: Number(roomState.currentRoomId) });
+        }
+        navigateTo('/game');
     }
 // as the browser to treat as a new URL, so it reloads the latest avatar/ no old cached image
     function withAvatarVersion(url)
@@ -86,21 +110,20 @@
 
 
 <header>
-  <div id="header">
+    <div id="header">
     <div class="header-logo">
-        {#if $authStore.isLoggedIn}
-        <Logo handleLogoClick={goToDashboard}/>
+        {#if $authStore.isLoggedIn && shouldShowUserNavigation($currentPath)}
+            <Logo handleLogoClick={goToDashboard}/>
         {/if}
     </div>
     <div class="header-nav">
-        {#if $authStore.isLoggedIn}
+        {#if $authStore.isLoggedIn && shouldShowUserNavigation($currentPath)}
         <div class="user-info">
             <span class="user-name">{$authStore.user}</span>
             <span class="user-balance">Balance: {$authStore.balance ?? 0}</span>
         </div>
         {/if}
-    <!-- When route becomes /, that whole block is not rendered. -->
-    {#if $currentPath !== '/' && $currentPath !== '/login' && $currentPath !== '/signup'}
+    {#if shouldShowUserNavigation($currentPath)}
         <div class="avatar-container">
             <!-- Always render the avatar button: image for logged-in users, default icon otherwise. -->
             <button class="avatar" onclick={toggleDropdown} type="button" aria-label="Open user menu">
@@ -115,8 +138,10 @@
             </button>
             {#if $authStore.isLoggedIn && showDropdown}
                 <div class="dropdown">
+                    <button onclick={goToProfile}>Profile</button>
                     <button onclick={goToSettings}>Settings</button>
                     <button onclick={goToWork}>Go to Work</button>
+                    <button onclick={goToPractice}>Practice</button>
                     <button onclick={handleLogout}>Logout</button>
                 </div>
             {/if}
@@ -231,7 +256,7 @@
     {
         background: #B13BCC;
     }
-    
+
     .user-info
     {
         display: flex;
@@ -240,7 +265,7 @@
         justify-content: center;
         gap: 2px;
     }
-    
+
     .user-name
     {
         color: #fff;
