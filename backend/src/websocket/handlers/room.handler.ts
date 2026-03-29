@@ -246,6 +246,20 @@ export async function handleRoomJoin(
       return;
     }
 
+    // 5b. Check buy-in balance
+    if (room.buy_in_amount > 0) {
+      const balanceResult = await db.query(
+        'SELECT balance FROM users WHERE id = $1',
+        [userId]
+      );
+      if (balanceResult.rows[0].balance < room.buy_in_amount) {
+        connectionManager.send(userId, 'room:error', {
+          error: 'Not enough coins for buy-in',
+        });
+        return;
+      }
+    }
+
     // 6. Find next available slot
     const slotResult = await db.query(
       `SELECT generate_series(1, $1) as slot
@@ -617,7 +631,6 @@ export async function handleRoomKick(
       user_id: target_user_id,
       slot,
     });
-    await broadcastRoomList(db);
 
     console.log(
       `🎮 Room ${room_id}: User ${target_user_id} kicked by creator ${userId}`
