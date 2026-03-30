@@ -59,6 +59,12 @@
 
     function handlePlayerReady()
     {
+        const roomId = getValidRoomId();
+        if (roomId === null)
+        {
+            return;
+        }
+
         console.log('Sending room:ready for room', roomState.currentRoomId);
         send('room:ready', { room_id: roomId });
     }
