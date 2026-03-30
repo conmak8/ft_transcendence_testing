@@ -6,6 +6,7 @@
 
     let isExpanded = $state(false);
     let input = $state("");
+    let { isExpanded = $bindable(true) } = $props();
 
     const activeMessages = $derived(
         roomState.currentRoomId ? roomState.messages : roomState.globalMessages
@@ -85,7 +86,7 @@
         left: 50%;
         transform: translateX(-50%);
         bottom: 53px;
-        width: max(320px, 33.333vw);
+        width: clamp(420px, 46vw, 760px);
         height: 56px;
         overflow: hidden;
         transition: height 0.3s ease;
@@ -126,6 +127,7 @@
         padding-right: 4px;
     }
 
+<<<<<<< HEAD
     .chat-messages::-webkit-scrollbar
     {
         width: 12px;
@@ -205,3 +207,18 @@
 
 
 </style>
+=======
+    @media (max-width: 1180px)
+    {
+        .chat-drawer
+        {
+            width: calc(100vw - 32px);
+        }
+
+        .chat-drawer.expanded
+        {
+            height: max(240px, 45vh);
+        }
+    }
+</style>
+>>>>>>> origin/main

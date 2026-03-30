@@ -162,7 +162,7 @@
         top: 0;
         left: 0;
         box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
-        z-index: 1000;
+        z-index: 1100;
         display: flex;
         justify-content: space-between;
         align-items: center;
@@ -173,10 +173,10 @@
     .header-nav
     {
         display: flex;
-        gap: 60px;
+        gap: 20px;
         flex: 1;
         justify-content: flex-end;
-        margin-right: 45px;
+        margin-right: 12px;
     }
 
     .avatar-container
@@ -225,14 +225,15 @@
     .dropdown
     {
         position: absolute;
-        top: 80px;
-        right: 0;
+        top: 68px;
+        right: -10px;
         border: 1px solid rgba(10, 235, 0, 0.1);
         background: rgba(15, 19, 20, 0.9);
         backdrop-filter: blur(10px);
         border-radius: 0px;
         transition: all 0.3s;
         min-width: 150px;
+        z-index: 1101;
     }
 
     .dropdown:hover
